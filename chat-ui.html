@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Digital Bank Assistant</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    .header { background-color: #f0f0f0; padding: 10px; }
+    .container { display: flex; height: calc(100vh - 50px); }
+    .panel {
+      flex: 1;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+    .chat-panel { background-color: #e0e0e0; }
+    .avatar-panel { background-color: #ffffff; text-align: center; }
+    #avatar {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      margin: 0 auto;
+      display: block;
+    }
+    #transcript { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <input type="text" id="queryInput" placeholder="Type your bank query here..." style="width:70%; padding: 8px;">
+    <button id="sendButton" style="padding: 8px;">Send Query</button>
+  </div>
+  <div class="container">
+    <!-- Left Panel: Chat Transcript -->
+    <div class="panel chat-panel">
+      <h2>Chat Transcript</h2>
+      <div id="transcript">Waiting for response...</div>
+    </div>
+    <!-- Right Panel: Digital Avatar -->
+    <div class="panel avatar-panel">
+      <h2>Digital Avatar</h2>
+      <!-- Use placeholder images for the avatar -->
+      <img id="avatar" src="https://dummyimage.com/300x300/cccccc/ffffff&text=Idle" alt="Digital Avatar">
+      <!-- Optionally, include an audio element if you plan to play back audio files -->
+      <audio id="audioPlayer" controls style="width:100%; margin-top:20px; display: none;"></audio>
+    </div>
+  </div>
+  <script>
+    // Function to use the browser's speechSynthesis API to speak text,
+    // and to toggle the avatar image using onstart and onend events.
+    function speakText(text, lang = 'en-US') {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang;  // Use 'ar-EG' for Arabic if needed.
+      
+      // Get the avatar image element
+      const avatarImg = document.getElementById("avatar");
+      
+      // When speech starts, change the avatar image to the speaking placeholder.
+      utterance.onstart = function() {
+        avatarImg.src = "https://dummyimage.com/300x300/cccccc/ffffff&text=Speaking";
+      };
+      
+      // When speech ends, revert the avatar image back to the idle placeholder.
+      utterance.onend = function() {
+        avatarImg.src = "https://via.placeholder.com/300?text=Idle";
+      };
+      
+      speechSynthesis.speak(utterance);
+    }
+
+    async function sendQuery() {
+      const query = document.getElementById('queryInput').value.trim();
+      if (!query) return;
+      
+      const transcriptDiv = document.getElementById('transcript');
+      transcriptDiv.textContent = "Processing query...\n";
+      
+      try {
+        // POST the query to the streaming endpoint (adjust URL if needed)
+        const response = await fetch("/api/chat-stream", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: query })
+        });
+        
+        if (!response.ok) {
+          transcriptDiv.textContent += "\nError: " + response.statusText;
+          return;
+        }
+        
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let done = false;
+        let accumulatedText = "";
+        
+        // Read the stream chunk-by-chunk
+        while (!done) {
+          const { value, done: doneReading } = await reader.read();
+          done = doneReading;
+          const chunk = decoder.decode(value, { stream: !done });
+          // Assume each chunk is in SSE format (lines starting with "data: ")
+          const lines = chunk.split("\n");
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const data = line.replace("data: ", "").trim();
+              if (data) {
+                accumulatedText += data + " ";
+                transcriptDiv.textContent += data + " ";
+              }
+            }
+          }
+        }
+        // Once the full response is received, speak the accumulated text.
+        speakText(accumulatedText, 'en-US');  // Change to 'ar-EG' for Arabic if required.
+      } catch (error) {
+        transcriptDiv.textContent += "\nError: " + error;
+        console.error("Error streaming response:", error);
+      }
+    }
+    
+    document.getElementById('sendButton').addEventListener('click', sendQuery);
+  </script>
+</body>
+</html>

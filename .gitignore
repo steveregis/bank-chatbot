@@ -1,0 +1,14 @@
+# Ignore build artifacts
+*.o
+*.pyc
+
+# Ignore temporary files
+*.log
+*.tmp
+
+# Ignore specific directories
+/node_modules
+/venv
+
+# Ignore sensitive files
+config.ini

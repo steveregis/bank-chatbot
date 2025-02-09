@@ -1,0 +1,476 @@
+{
+  "query": "hi",
+  "retrieved_documents": [],
+  "response": "Hello! Welcome to the chatbot. How can I assist you today?"
+}
+{
+  "query": "hi",
+  "retrieved_documents": [],
+  "response": "Hello! Welcome to the chatbot. How can I assist you today?"
+}
+{
+  "query": "tell me about dubai islamic bank",
+  "retrieved_documents": [
+    "dibcapital_com_corporate-finance.txt",
+    "dib_ae_about-us.txt",
+    "dibpak_com_services_internet-banking.txt",
+    "dibpak_com_services_mobile-banking.txt",
+    "dib_ae_business_financing.txt"
+  ],
+  "response": " Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal "
+}
+{
+  "query": "what services does dib offer?",
+  "retrieved_documents": [
+    "dibcapital_com_corporate-finance.txt",
+    "dib_ae_about-us.txt",
+    "dibpak_com_services_internet-banking.txt",
+    "dibpak_com_services_mobile-banking.txt",
+    "dib_ae_business_financing.txt"
+  ],
+  "response": " Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal "
+}
+{
+  "query": "what services does dib offer?",
+  "retrieved_documents": [
+    "dibcapital_com_corporate-finance.txt",
+    "dib_ae_about-us.txt",
+    "dibpak_com_services_internet-banking.txt",
+    "dibpak_com_services_mobile-banking.txt",
+    "dib_ae_business_financing.txt"
+  ],
+  "response": " Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal "
+}
+{
+  "query": "what services does dib offer?",
+  "retrieved_documents": [
+    "dibcapital_com_corporate-finance.txt",
+    "dib_ae_about-us.txt",
+    "dibpak_com_services_internet-banking.txt",
+    "dibpak_com_services_mobile-banking.txt",
+    "dib_ae_business_financing.txt"
+  ],
+  "response": " Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal "
+}
+{
+  "query": "what services does dib offer?",
+  "retrieved_documents": [
+    "dibcapital_com_corporate-finance.txt",
+    "dib_ae_about-us.txt",
+    "dibpak_com_services_internet-banking.txt",
+    "dibpak_com_services_mobile-banking.txt",
+    "dib_ae_business_financing.txt"
+  ],
+  "response": " Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal "
+}
+{
+  "query": "what services does dib offer?",
+  "retrieved_documents": [
+    "dibcapital_com_corporate-finance.txt",
+    "dib_ae_about-us.txt",
+    "dibpak_com_services_internet-banking.txt",
+    "dibpak_com_services_mobile-banking.txt",
+    "dib_ae_business_financing.txt"
+  ],
+  "response": " Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal "
+}
+{
+  "query": "tell me about the history of dib.",
+  "retrieved_documents": [
+    "dibcapital_com_corporate-finance.txt",
+    "dib_ae_about-us.txt",
+    "dibpak_com_services_internet-banking.txt",
+    "dibpak_com_services_mobile-banking.txt",
+    "dib_ae_business_financing.txt"
+  ],
+  "response": " Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal "
+}
+{
+  "query": "tell me about the history of dib.",
+  "retrieved_documents": [
+    "dibcapital_com_corporate-finance.txt",
+    "dib_ae_about-us.txt",
+    "dibpak_com_services_internet-banking.txt",
+    "dibpak_com_services_mobile-banking.txt",
+    "dib_ae_business_financing.txt"
+  ],
+  "response": " Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal "
+}
+{
+  "query": "tell me about the history of dib.",
+  "retrieved_documents": [
+    "dibcapital_com_corporate-finance.txt",
+    "dib_ae_about-us.txt",
+    "dibpak_com_services_internet-banking.txt",
+    "dibpak_com_services_mobile-banking.txt",
+    "dib_ae_business_financing.txt"
+  ],
+  "response": " Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal "
+}
+{
+  "query": "tell me about the history of dib.",
+  "retrieved_documents": [
+    "dibcapital_com_corporate-finance.txt",
+    "dib_ae_about-us.txt",
+    "dibpak_com_services_internet-banking.txt",
+    "dibpak_com_services_mobile-banking.txt",
+    "dib_ae_business_financing.txt"
+  ],
+  "response": " Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal "
+}
+{
+  "timestamp": "2025-01-18T10:25:53.633120",
+  "query": "hi",
+  "retrieved_documents": [],
+  "response": "Hello! Welcome to the chatbot. How can I assist you today?"
+}
+{
+  "timestamp": "2025-01-18T10:26:14.198729",
+  "query": "tell me about dubai islamic bank",
+  "retrieved_documents": [
+    {
+      "source": "dibcapital_com_corporate-finance.txt",
+      "content_snippet": ""
+    },
+    {
+      "source": "dib_ae_about-us.txt",
+      "content_snippet": "Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal F"
+    },
+    {
+      "source": "dibpak_com_services_internet-banking.txt",
+      "content_snippet": ""
+    },
+    {
+      "source": "dibpak_com_services_mobile-banking.txt",
+      "content_snippet": ""
+    },
+    {
+      "source": "dib_ae_business_financing.txt",
+      "content_snippet": ""
+    }
+  ],
+  "response": " Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal "
+}
+{
+  "timestamp": "2025-01-18T10:26:25.852607",
+  "query": "what services does dib offer?",
+  "retrieved_documents": [
+    {
+      "source": "dibcapital_com_corporate-finance.txt",
+      "content_snippet": ""
+    },
+    {
+      "source": "dib_ae_about-us.txt",
+      "content_snippet": "Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal F"
+    },
+    {
+      "source": "dibpak_com_services_internet-banking.txt",
+      "content_snippet": ""
+    },
+    {
+      "source": "dibpak_com_services_mobile-banking.txt",
+      "content_snippet": ""
+    },
+    {
+      "source": "dib_ae_business_financing.txt",
+      "content_snippet": ""
+    }
+  ],
+  "response": " Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal "
+}
+{
+  "timestamp": "2025-01-18T10:29:12.617686",
+  "query": "hi",
+  "retrieved_documents": [],
+  "response": "Hello! Welcome to the chatbot. How can I assist you today?"
+}
+{
+  "timestamp": "2025-01-18T10:29:21.709470",
+  "query": "tell me about dubai islamic bank",
+  "retrieved_documents": [],
+  "response": "I'm sorry, I couldn't find any relevant information. Could you rephrase or provide more details?"
+}
+{
+  "timestamp": "2025-01-18T10:29:38.625598",
+  "query": "what services does dib offer?",
+  "retrieved_documents": [],
+  "response": "I'm sorry, I couldn't find any relevant information. Could you rephrase or provide more details?"
+}
+{
+  "timestamp": "2025-01-18T10:42:24.979635",
+  "query": "hi",
+  "retrieved_documents": [],
+  "response": "Hello! Welcome to the chatbot. How can I assist you today?"
+}
+{
+  "timestamp": "2025-01-18T10:42:59.065887",
+  "query": "tell me about dubai islamic bank.",
+  "retrieved_documents": [],
+  "response": "I'm sorry, I couldn't find any relevant information. Could you rephrase or provide more details?"
+}
+{
+  "timestamp": "2025-01-18T10:43:15.834542",
+  "query": "what product does dib have",
+  "retrieved_documents": [],
+  "response": "I'm sorry, I couldn't find any relevant information. Could you rephrase or provide more details?"
+}
+{
+  "timestamp": "2025-01-18T10:46:22.543780",
+  "query": "hi",
+  "retrieved_documents": [],
+  "response": "Hello! Welcome to the chatbot. How can I assist you today?"
+}
+{
+  "timestamp": "2025-01-18T10:46:29.290566",
+  "query": "tell me about dib",
+  "retrieved_documents": [],
+  "response": "I'm sorry, I couldn't find any relevant information. Could you rephrase or provide more details?"
+}
+{
+  "timestamp": "2025-01-18T10:46:39.300841",
+  "query": "what products does it offer ?",
+  "retrieved_documents": [],
+  "response": "I'm sorry, I couldn't find any relevant information. Could you rephrase or provide more details?"
+}
+{
+  "timestamp": "2025-01-18T10:48:39.209017",
+  "query": "what services does dib offer?",
+  "retrieved_documents": [],
+  "response": "I'm sorry, I couldn't find any relevant information. Could you rephrase or provide more details?"
+}
+{
+  "timestamp": "2025-01-18T12:09:20.908970",
+  "query": "personal accounts cards deposits",
+  "retrieved_documents": [
+    {
+      "source": "dib_ae_about-us.txt",
+      "content_snippet": "Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal Finance Branch Banking Transfer Funds Other Services Tools Offers Product Finder IBAN Validator Produ"
+    },
+    {
+      "source": "dib_ae_personal_cards.txt",
+      "content_snippet": "Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal Finance Branch Banking Transfer Funds Other Services Tools Offers Product Finder IBAN Validator Produ"
+    }
+  ],
+  "response": "Source: dib_ae_about-us.txt - Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal Finance Branch Banking Transfer Funds Other Services Tools Offers Product Finder IBAN Validator Product Comparator IBAN Generator Finance Calculator Exchange rates Profit Rates Business Corporate Banking Treasury Business Banking Investment Banking About Us About Islamic Banking Our History Vision, Purpose & Values Awards Leadership Team Subsidiaries and Associates Media Center Investor Relations Customer Charter Contact Us Work With Us Career Fairs UAE Nationals Job Search alt Sustainability Looks like you may be taking time to decide.  May I help you with something? alt onlinealt onlinealt businessalt quick loginalt corporate alt online alt business alt quick login alt corporate Personal Business alt About Us Sustainability Work With Us alt onlinealt onlinealt businessalt quick loginalt corporate alt online alt business alt quick login alt corporate About Islamic Banking Our History Investor Relations Media Center We are more than just a bank As champions of morality, equality and transparancy, our establishment reflects the modernity, diversity and growth of the city whose name we share\n\nSource: dib_ae_personal_cards.txt - Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal Finance Branch Banking Transfer Funds Other Services Tools Offers Product Finder IBAN Validator Product Comparator IBAN Generator Finance Calculator Exchange rates Profit Rates Business Corporate Banking Treasury Business Banking Investment Banking About Us About Islamic Banking Our History Vision, Purpose & Values Awards Leadership Team Subsidiaries and Associates Media Center Investor Relations Customer Charter Contact Us Work With Us Career Fairs UAE Nationals Job Search alt Sustainability Looks like you may be taking time to decide.  May I help you with something? alt onlinealt onlinealt businessalt quick loginalt corporate alt online alt business alt quick login alt corporate Personal Business alt About Us Sustainability Work With Us alt onlinealt onlinealt businessalt quick loginalt corporate alt online alt business alt quick login alt corporate Open an Account Get Personal Finance Manage your Wealth Find a Card Get Auto Finance Finance your Home Choose a Card Imagine More Available in three variants \u2013Infinite, Signature and Platinum Credit Cards"
+}
+{
+  "timestamp": "2025-01-18T12:09:47.127855",
+  "query": "card get auto finance finance your",
+  "retrieved_documents": [
+    {
+      "source": "dib_ae_personal_cards.txt",
+      "content_snippet": "Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal Finance Branch Banking Transfer Funds Other Services Tools Offers Product Finder IBAN Validator Produ"
+    }
+  ],
+  "response": "Source: dib_ae_personal_cards.txt - Search DIB Personal Accounts Cards Deposits Investment Products Auto Finance Home Finance Personal Finance Branch Banking Transfer Funds Other Services Tools Offers Product Finder IBAN Validator Product Comparator IBAN Generator Finance Calculator Exchange rates Profit Rates Business Corporate Banking Treasury Business Banking Investment Banking About Us About Islamic Banking Our History Vision, Purpose & Values Awards Leadership Team Subsidiaries and Associates Media Center Investor Relations Customer Charter Contact Us Work With Us Career Fairs UAE Nationals Job Search alt Sustainability Looks like you may be taking time to decide.  May I help you with something? alt onlinealt onlinealt businessalt quick loginalt corporate alt online alt business alt quick login alt corporate Personal Business alt About Us Sustainability Work With Us alt onlinealt onlinealt businessalt quick loginalt corporate alt online alt business alt quick login alt corporate Open an Account Get Personal Finance Manage your Wealth Find a Card Get Auto Finance Finance your Home Choose a Card Imagine More Available in three variants \u2013Infinite, Signature and Platinum Credit Cards"
+}
+{
+  "timestamp": "2025-01-18T14:31:35.148537",
+  "query": "Tell me about the text in these docs",
+  "response": "Error: [401] Unauthorized\nAuthentication failed\nPlease check or regenerate your API key."
+}
+{
+  "timestamp": "2025-01-18T14:32:51.233294",
+  "query": "Tell me about the text in these docs",
+  "response": "The text appears to be from the website of Dubai Islamic Bank (DIB), a banking institution that provides personal and corporate banking services. The text includes various sections, such as:\n\n1. **Product and service information**: This includes details about the bank's credit cards, personal finance options, auto finance, home finance, and other services.\n2. **About Us**: This section provides information about the bank's history, vision, purpose, values, leadership team, subsidiaries, and associates.\n3. **Awards and achievements**: The text highlights the bank's awards and recognition in the banking industry.\n4. **Career opportunities**: The bank's career fairs, job search options, and talent management approach are mentioned.\n5. **Sustainability and community services**: The bank's commitment to sustainability, people with disabilities, and community services is highlighted.\n6. **News and announcements**: There are news articles and announcements about the bank's partnerships, new product launches, and financial results.\n7. **General information**: The text includes general information about the bank's swift code, routing number, IBOR transition, and other related details.\n\nOverall, the text provides a comprehensive overview of Dubai Islamic Bank's services, history, achievements, and values."
+}
+{
+  "timestamp": "2025-01-18T14:33:17.592518",
+  "query": "wha is DIB?",
+  "response": "Dubai Islamic Bank (DIB) is a bank that reflects the modernity, diversity, and growth of Dubai. It was established on September 15, 1975, and is the first Islamic bank in the world that integrates Islamic values with modern banking practices."
+}
+{
+  "timestamp": "2025-01-18T14:33:39.965636",
+  "query": "what are thier products",
+  "response": "Based on the provided context, Dubai Islamic Bank offers the following products and services:\n\n1. Personal Accounts\n2. Cards (Credit Cards, Debit Cards)\n3. Deposits\n4. Investment Products\n5. Auto Finance\n6. Home Finance\n7. Personal Finance\n8. Branch Banking\n9. Transfer Funds\n10. Other Services\n11. Wajaha Private Banking\n12. Aayan Exclusive Banking\n13. Mumayyaz Privilege Banking\n14. Emirates Skywards Credit Cards (with benefits such as earning Skywards Miles, travel privileges, and lifestyle benefits)\n15. Islamic financing products (free from RIBA, interest, or un-Islamic charges)\n\nPlease note that this list might not be exhaustive, as the provided context is limited to a specific website snapshot."
+}
+{
+  "timestamp": "2025-01-18T14:34:33.230498",
+  "query": "I have to buy home for 4Mil what are my options",
+  "response": "Based on the provided context, it appears that Dubai Islamic Bank (DIB) offers various home finance options. However, the specific options and details are not explicitly mentioned.\n\nI would recommend visiting the DIB website or contacting their customer service to inquire about their home finance options and to get personalized guidance on purchasing a house worth 4 million. They can provide you with information on their available products, eligibility criteria, and repayment terms.\n\nAdditionally, you may want to consider factors such as your credit score, income, and other financial obligations to determine how much you can afford to borrow and what your monthly repayments might be. It's essential to carefully review and compare different options before making a decision."
+}
+{
+  "timestamp": "2025-01-18T14:39:31.582148",
+  "query": "what are the key historical milestone in DIB journey",
+  "response": "Based on the provided context, here are the key historical milestones in Dubai Islamic Bank's journey:\n\n1. **1975**: DIB officially opens on September 15th.\n2. **1977**: DIB's first Corporate Office opens.\n3. **1979**: First Branch opens in Bur Dubai.\n4. **1980**: DIB expands operations and opens a branch in Abu Dhabi.\n5. **1981**: Expansion plans continue with the opening of a branch in Al Ain.\n6. **1982**: DIB introduces Automated Teller Machines (ATMs) across its branches.\n7. **1983**: Sharia and Supervisory Board is established.\n8. **1987**: Agreement with VISA International is announced.\n9. **1989**: DIB VISA Cards are launched, offering global access benefits for customers.\n10. **1990**: DIB becomes a Public Joint Stock Company.\n11. **1992**: New branches open in Baniyas, Abu Dhabi, and Bur Dubai.\n12. **1995**: DIB celebrates 20 years of Sharia-compliant banking.\n13. **1996**: Phone banking is introduced as a key customer service initiative.\n14. **2000**: DIB opens new branches in Ajman and Dubai.\n15. **2001**: UAE Switch system is commissioned.\n16. **2005**: DIB sponsors Dubai International Holy Quran Award.\n17. **2006**: DIB Pakistan commences operations in March.\n18. **2006**: DIB Foundation is launched in Dubai.\n19. **2007**: Dar Al Sharia, a Sharia consultancy subsidiary, is launched.\n20. **2008**: Wajaha, an exclusive wealth management service, is launched.\n21. **2010**: DIB Jordan launches operations in Amman, Jordan.\n22. **2013**: Dr. Adnan Chilwan is appointed Group CEO, and Abdulla Al Hamli is appointed Managing Director of the bank.\n23. **2014**: Euro Clearing Signing between DIB and Deutsche Bank takes place.\n24. **2015**: Ijara Sukuk - USD 750 million is issued.\n25. **2016**: DIB is named among Forbes Top 500 Companies in the Arab world.\n26. **2017**: DIB enters the Billion Dollar Club.\n27. **2019**: DIB launches Panin Dubai Syariah Bank in Indonesia.\n28. **2020**: DIB successfully closes its USD 1 billion Sukuk issuance.\n\nPlease let me know if you'd like me to add or clarify anything!"
+}
+{
+  "timestamp": "2025-01-18T17:51:59.927234",
+  "query": "what is the best credit card for me",
+  "response": "Unfortunately, I don't have enough information to provide a personalized recommendation for the best credit card for your needs. The context provided is a large chunk of text from the Dubai Islamic Bank's website, which doesn't include any details about your specific requirements or preferences.\n\nTo give you a helpful answer, I would need to know more about your needs, such as:\n\n* Your credit score\n* Your spending habits (e.g., travel, dining, shopping)\n* Your financial goals (e.g., rewards, cashback, balance transfer)\n* Your preferred features (e.g., annual fee, foreign transaction fees, credit limit)\n\nIf you could provide more information about your needs, I'd be happy to help you find a suitable credit card option."
+}
+{
+  "timestamp": "2025-01-21T23:22:03.765622",
+  "query": "hi",
+  "response": "Hi!"
+}
+{
+  "timestamp": "2025-01-21T23:23:14.014836",
+  "query": "what is sushi-grand-hyatt offer",
+  "response": "There is no mention of Sushi Grand Hyatt in the provided context. The text appears to be about Dubai Islamic Bank, its history, products, and services. It doesn't mention Sushi Grand Hyatt or any offers related to it."
+}
+{
+  "timestamp": "2025-01-21T23:23:50.979733",
+  "query": "tell me about auto finance",
+  "response": "According to the provided context, Dubai Islamic Bank offers an \"Auto Finance\" product, but the specifics of what this entails are not detailed in the given text."
+}
+{
+  "timestamp": "2025-01-21T23:24:36.770753",
+  "query": "what is wajaha",
+  "response": "Wajaha is DIB's (Dubai Islamic Bank's) exclusive wealth management service, which was launched in 2007."
+}
+{
+  "timestamp": "2025-01-21T23:25:10.848692",
+  "query": "what are options to manage wealth",
+  "response": "According to the provided context, the options for wealth management are:\n\n1. Wajaha - exclusive wealth management service.\n2. Al Islami Private Banking - launched in 2006.\n3. Aayan Exclusive Banking - mentioned under \"Wealth Management\" section.\n4. Mumayyaz Privilege Banking - mentioned under \"Wealth Management\" section.\n\nPlease note that these options might not be exhaustive, and there could be other wealth management options available with Dubai Islamic Bank that are not mentioned in the provided context."
+}
+{
+  "timestamp": "2025-02-03T00:45:29.231229",
+  "query": "hi",
+  "response": "Hi!"
+}
+{
+  "timestamp": "2025-02-03T00:45:39.099830",
+  "query": "what is DIB",
+  "response": "According to the provided context, DIB stands for Dubai Islamic Bank."
+}
+{
+  "timestamp": "2025-02-03T21:13:00.473313",
+  "query": "Your bank query here",
+  "response": "I'm happy to help with any questions you have about Dubai Islamic Bank (DIB)! Go ahead and ask away"
+}
+{
+  "timestamp": "2025-02-03T21:22:32.964831",
+  "query": "Your bank query here",
+  "response": "I'm ready to help with your query about Dubai Islamic Bank! Please go ahead and ask your question."
+}
+{
+  "timestamp": "2025-02-03T21:38:18.937685",
+  "query": "What is my balance?",
+  "response": "I'm sorry, but I don't have access to your account information, so I cannot provide you with your balance. This text appears to be from a bank's website or mobile app, and you should be able to log in to your account or contact the bank's customer service to check your balance."
+}
+{
+  "timestamp": "2025-02-03T21:39:51.000571",
+  "query": "hello",
+  "response": "I don't know. There is no question provided, so I'm unable to answer. Please provide the actual question you'd like me to help with!"
+}
+{
+  "timestamp": "2025-02-03T21:40:11.203467",
+  "query": "who is the CEO of DIB ?",
+  "response": "According to the provided context, the CEO of Dubai Islamic Bank is Dr. Adnan Chilwan. He was appointed as the Group CEO & Abdulla Al Hamli was appointed as Managing Director of the bank."
+}
+{
+  "timestamp": "2025-02-03T21:40:43.056840",
+  "query": "what are the product offering of the bank ?",
+  "response": "Based on the provided context, the product offerings of Dubai Islamic Bank include:\n\n1. Personal Accounts\n2. Cards (Credit Cards, Debit Cards)\n3. Deposits\n4. Investment Products\n5. Auto Finance\n6. Home Finance\n7. Personal Finance\n8. Branch Banking\n9. Transfer Funds\n10. Other Services\n11. Wajaha Private Banking\n12. Aayan Exclusive Banking\n13. Mumayyaz Privilege Banking\n\nAdditionally, they offer various credit cards with benefits such as cashback, travel, lifestyle, loyalty programs, balance transfer, and more."
+}
+{
+  "timestamp": "2025-02-03T21:41:58.147497",
+  "query": "can u deep dive into personal finance ?",
+  "response": "Based on the provided context, the personal finance products offered by Dubai Islamic Bank include:\n\n1. Personal Accounts\n2. Cards (Credit Cards, Debit Cards)\n3. Deposits\n4. Investment Products\n5. Auto Finance\n6. Home Finance\n\nAdditionally, they offer other financial services and tools, such as Transfer Funds, Other Services, Product Finder, IBAN Validator, Product Comparator, IBAN Generator, Finance Calculator, Exchange rates, and Profit Rates."
+}
+{
+  "timestamp": "2025-02-03T21:47:32.143081",
+  "query": "where is DIB located ?",
+  "response": "The context provided does not explicitly state the location of Dubai Islamic Bank's headquarters. However, based on the name \"Dubai Islamic Bank\", it is likely that the bank is headquartered in Dubai, United Arab Emirates (UAE)."
+}
+{
+  "timestamp": "2025-02-03T21:50:09.082212",
+  "query": "what eligibility needs to be met to get a personal loan ?",
+  "response": "Unfortunately, the provided context does not explicitly mention the eligibility requirements to obtain a personal loan from Dubai Islamic Bank. The provided text appears to be a homepage or a general information page of the bank, and it does not contain specific details about personal loan eligibility requirements. To find out the eligibility requirements, I would recommend visiting the bank's website or contacting their customer service directly."
+}
+{
+  "timestamp": "2025-02-03T22:20:32.691972",
+  "query": "what is DIB ?",
+  "response": "DIB stands for Dubai Islamic Bank."
+}
+{
+  "timestamp": "2025-02-03T22:20:45.676556",
+  "query": "what is DIB ?",
+  "response": "Dubai Islamic Bank (DIB) is a bank that offers Sharia-compliant banking and financial services. It was founded in 1975 and is headquartered in Dubai, United Arab Emirates. The bank provides a range of products and services, including personal and corporate banking, credit cards, auto and home finance, investment products, and more. DIB operates in several countries, including the UAE, Pakistan, Jordan, Kenya, and Indonesia, and has a strong presence in the Middle East and beyond."
+}
+{
+  "timestamp": "2025-02-03T22:37:58.468427",
+  "query": "hello",
+  "response": "I don't know. There is no question to answer."
+}
+{
+  "timestamp": "2025-02-03T22:47:16.574546",
+  "query": "what is dib",
+  "response": "Based on the provided context, DIB stands for Dubai Islamic Bank."
+}
+{
+  "timestamp": "2025-02-03T23:09:46.146991",
+  "query": "hi",
+  "response": "You're right! There is no question to answer. The input \"hi\" is a greeting, and there is no standalone question to provide an answer to."
+}
+{
+  "timestamp": "2025-02-03T23:10:02.788865",
+  "query": "what is DIB",
+  "response": "According to the provided context, DIB stands for Dubai Islamic Bank."
+}
+{
+  "timestamp": "2025-02-03T23:14:59.929340",
+  "query": "i need a loan",
+  "response": "It looks like you're interested in exploring loan options.\n\nBased on the provided context, Dubai Islamic Bank (DIB) offers various loan options, including:\n\n1. **Personal Finance**: DIB provides personal finance solutions with flexible repayment plans and competitive profit rates.\n2. **Auto Finance**: If you're looking to purchase a car, DIB offers auto finance options with attractive rates and benefits.\n3. **Home Finance**: DIB provides home finance solutions to help you purchase or construct a home.\n\nTo learn more about these loan options or to apply, you can visit the DIB website or contact their customer service.\n\nRemember to carefully review the terms and conditions, profit rates, and repayment plans before applying for a loan.\n\nDo you have any specific questions about these loan options or would you like more information on how to apply?"
+}
+{
+  "timestamp": "2025-02-03T23:18:25.877335",
+  "query": "what is dib",
+  "response": "Based on the provided context, DIB stands for Dubai Islamic Bank."
+}
+{
+  "timestamp": "2025-02-04T06:09:30.643360",
+  "query": "good morning",
+  "response": "Based on common knowledge and cultural context, \"good morning\" is a greeting used to acknowledge and wish someone well during the morning hours of the day. It's a way of saying \"hello\" and expressing a positive sentiment at the start of the day."
+}
+{
+  "timestamp": "2025-02-04T06:11:55.933949",
+  "query": "what is DIB ?",
+  "response": "According to the provided context, DIB stands for Dubai Islamic Bank."
+}
+{
+  "timestamp": "2025-02-04T06:12:24.831149",
+  "query": "who is CIO of DIB ?",
+  "response": "The provided context does not mention the Chief Information Officer of Dubai Islamic Bank. It appears to be a webpage that provides information about the bank's history, products, and services, but it does not include the name of the CIO."
+}
+{
+  "timestamp": "2025-02-04T06:12:40.933879",
+  "query": "who is CEO of DIB ?",
+  "response": "According to the provided context, the CEO of Dubai Islamic Bank is Dr. Adnan Chilwan. He was appointed as the Group CEO & Abdulla Al Hamli was appointed as Managing Director of the bank."
+}
+{
+  "timestamp": "2025-02-04T06:13:11.675480",
+  "query": "what is CEO of dib ?",
+  "response": "According to the provided context, the CEO of Dubai Islamic Bank is Dr. Adnan Chilwan. He was appointed as the Group CEO & Abdulla Al Hamli was appointed as Managing Director of the bank."
+}
+{
+  "timestamp": "2025-02-04T09:30:29.952323",
+  "query": "what is Wajaha banking ?",
+  "response": "Wajaha is a wealth management service offered by Dubai Islamic Bank (DIB). It is described as an \"exclusive wealth management service\" on the bank's website."
+}
+{
+  "timestamp": "2025-02-04T10:08:48.986923",
+  "query": "who is the current CEO of DIB ?",
+  "response": "According to the provided context, the current CEO of Dubai Islamic Bank is Dr. Adnan Chilwan, who was appointed as the Group CEO in 2013. Additionally, Abdulla Al Hamli was appointed as the Managing Director of the bank at the same time."
+}
+{
+  "timestamp": "2025-02-04T10:09:14.972336",
+  "query": "what is Wajaha banking",
+  "response": "According to the provided context, Wajaha is a wealth management service offered by Dubai Islamic Bank. It was launched by DIB as an exclusive wealth management service."
+}
+{
+  "timestamp": "2025-02-04T10:10:20.099226",
+  "query": "what are the products that DIB sells ?",
+  "response": "Based on the provided context, Dubai Islamic Bank offers various products and services, including:\n\n1. Personal Accounts\n2. Cards (Credit, Debit, and others)\n3. Deposits\n4. Investment Products\n5. Auto Finance\n6. Home Finance\n7. Personal Finance\n8. Branch Banking\n9. Transfer Funds\n10. Other Services (such as Wajaha Private Banking, Aayan Exclusive Banking, and Mumayyaz Privilege Banking)\n\nThese products and services cater to individual and corporate customers, offering Islamic banking solutions that comply with Shariah principles."
+}
+{
+  "timestamp": "2025-02-07T21:47:13.362962",
+  "query": "hello",
+  "response": "I don't know. There is no question to answer."
+}
+{
+  "timestamp": "2025-02-09T11:12:43.745404",
+  "query": "what the products from DIB ?",
+  "response": "Based on the provided context, Dubai Islamic Bank (DIB) offers a range of products and services, including:\n\n1. Personal Accounts: Various types of personal accounts, including current and savings accounts.\n2. Cards: Debit and credit cards, including co-branded cards with partners like flydubai and Emirates Skywards.\n3. Deposits: Term deposits and other deposit products.\n4. Investment Products: Sharia-compliant investment products, including Sukuk and others.\n5. Auto Finance: Financing for vehicles, including the ACCESS Auto Finance program for people of determination.\n6. Home Finance: Financing for homes and real estate.\n7. Personal Finance: Personal loans and other financing options.\n8. Branch Banking: Traditional banking services through a network of branches.\n9. Transfer Funds: Services for transferring funds locally and internationally.\n10. Other Services: Various other services, including phone banking, online banking, and more.\n11. JOHARA: Branches for ladies only, offering specialized services.\n12. Al Islami Private Banking: Private banking services for high net worth individuals.\n13. Wajaha: Exclusive wealth management services.\n\nPlease note that this list may not be exhaustive, as DIB may offer additional products and services not mentioned in the provided context."
+}
