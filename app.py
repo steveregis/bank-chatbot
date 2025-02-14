@@ -3,8 +3,12 @@ import ssl
 import json
 import datetime
 import asyncio  # <-- added for async sleep
+import io
+import requests
 
-from fastapi import FastAPI
+# Import the Azure TTS function
+
+from fastapi import FastAPI,HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -21,6 +25,9 @@ from langchain.chains.conversational_retrieval.prompts import CONDENSE_QUESTION_
 from langchain.memory import ConversationBufferMemory
 from fastapi.responses import FileResponse, StreamingResponse
 
+from azure_tts import synthesize_speech
+
+
 # If using ChatNVIDIA, import it here. Otherwise, you can use any LLM you want.
 from langchain_nvidia_ai_endpoints import ChatNVIDIA
 
@@ -34,10 +41,19 @@ os.environ["NVIDIA_API_KEY"] = "nvapi-cDWmvPIqRxrKqHYZ6vFnU173Ugo-XZKKJaRRFT-nJP
 # ========== Initialize FastAPI ==========
 app = FastAPI()
 
+# Define the allowed origins (adjust if your front end is hosted elsewhere)
+origins = [
+    "http://localhost:8080",  # if you're serving your index.html on port 8080
+    "http://localhost:8000",
+    "http://127.0.0.1:8080",
+    "http://127.0.0.1:8000",
+    "http://localhost:3000"
+]
+
 # ========== CORS Middleware (optional) ==========
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # or restrict to specific domains
+    allow_origins=origins,   # or restrict to specific domains
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -82,6 +98,16 @@ qa_chain = ConversationalRetrievalChain(
 # ========== Define Request Model for POST endpoint ==========
 class QueryRequest(BaseModel):
     query: str
+
+# This model represents the data sent to the /synthesize endpoint.
+class SynthesisRequest(BaseModel):
+    text: str
+    language: str = "en-US"  # Default to English; can be changed to "ar-EG" for Arabic
+
+# Add this class to define the request model
+class SpeechTokenRequest(BaseModel):
+    region: str
+    subscription_key: str
 
 # ========== Simple root endpoint ==========
 @app.get("/")
@@ -134,6 +160,18 @@ async def chat_stream_endpoint(request: QueryRequest):
             await asyncio.sleep(0.1)  # simulate delay for streaming
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
+@app.post("/synthesize", response_description="Synthesized speech audio")
+async def synthesize_endpoint(request: SynthesisRequest):
+    try:
+        # Call the Azure TTS integration to generate audio.
+        audio_data = synthesize_speech(request.text, language=request.language)
+        # Return the audio data as a streaming response with the correct content type.
+        return StreamingResponse(io.BytesIO(audio_data), media_type="audio/wav")
+    except Exception as e: # Print the error to your console for debugging
+        print("Error in /synthesize:", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
 def log_interaction(query: str, response: str):
     log_entry = {
         "timestamp": datetime.datetime.now().isoformat(),
@@ -143,6 +181,31 @@ def log_interaction(query: str, response: str):
     with open("interaction_logs.json", "a", encoding="utf-8") as log_file:
         json.dump(log_entry, log_file, indent=2)
         log_file.write("\n")
+
+@app.post("/api/get-speech-token")
+async def get_speech_token(request: SpeechTokenRequest):
+    try:
+        response = requests.get(
+            f"https://{request.region}.api.speech.microsoft.com/cts/speech/token",
+            headers={
+                "Ocp-Apim-Subscription-Key": request.subscription_key
+            }
+        )
+        response.raise_for_status()
+        
+        # The token endpoint returns plain text, not JSON
+        token = response.text
+        
+        return {
+            "token": token,
+            "region": request.region
+        }
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")  # Debug logging
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        print(f"Unexpected error: {e}")  # Debug logging
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 # ========== Run with uvicorn (dev server) ==========
 if __name__ == "__main__":

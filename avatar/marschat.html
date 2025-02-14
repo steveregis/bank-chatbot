@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mars Bank Assistant</title>
+    <script src="https://aka.ms/csspeech/jsbrowserpackageraw"></script>
+    <style>
+        /* Layout */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Right Panel - Avatar */
+        #avatar-panel {
+            width: 60%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Make video container more prominent */
+        #videoContainer {
+            width: 100%;
+            height: 60vh; /* Increased height */
+            background: #000;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #remoteVideo {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #remoteVideo video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Configuration section */
+        #configuration {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            max-height: calc(40vh - 40px); /* Remaining space minus padding */
+        }
+
+        /* Left Panel - Chat Interface */
+        #chat-panel {
+            width: 40%;
+            padding: 20px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Control group styling */
+        .control-group {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .control-group h3 {
+            margin-top: 0;
+            color: #0078d4;
+            font-size: 1.1em;
+        }
+
+        /* Form controls */
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 8px 16px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #0078d4;
+            color: white;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #006cbd;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Loading indicator */
+        #remoteVideo:empty::after {
+            content: "Loading...";
+            color: white;
+            font-size: 1.2em;
+        }
+
+        /* Message styles */
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .user-message {
+            background: #e3f2fd;
+            margin-left: 20%;
+        }
+
+        .bot-message {
+            background: #f5f5f5;
+            margin-right: 20%;
+        }
+
+        /* Update the title styling */
+        h2 {
+            color: #0078d4;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-align: center;
+        }
+
+        /* Add some styling for the language selector */
+        #languageSelect {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            background-color: white;
+        }
+
+        /* Add styling for the voice selector */
+        #ttsVoice {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            background-color: white;
+        }
+
+        optgroup {
+            font-weight: bold;
+            color: #0078d4;
+        }
+
+        option {
+            font-weight: normal;
+            color: #333;
+            padding: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Right Panel - Avatar -->
+    <div id="avatar-panel">
+        <!-- Move video container to the top -->
+        <div id="videoContainer">
+            <div id="remoteVideo"></div>
+            <canvas id="canvas" width="1920" height="1080" hidden></canvas>
+            <canvas id="tmpCanvas" width="1920" height="1080" hidden></canvas>
+        </div>
+
+        <!-- Configuration section below the video -->
+        <div id="configuration">
+            <div class="control-group">
+                <h3>Azure Speech Configuration</h3>
+                <label for="region">Region:</label>
+                <select id="region">
+                    <option value="eastus2" selected>East US 2</option>
+                    <option value="westus2">West US 2</option>
+                    <option value="westeurope">West Europe</option>
+                </select>
+
+                <label for="subscriptionKey">Subscription Key:</label>
+                <input type="password" id="subscriptionKey" 
+                    value="AGFc9spJXlWZvhSokbZTRJnx14N1JXufaEbcvkAk6zHKRosipuypJQQJ99BBACHYHv6XJ3w3AAAYACOGBrd4">
+            </div>
+
+            <div class="control-group">
+                <h3>Language Settings</h3>
+                <label for="languageSelect">Language:</label>
+                <select id="languageSelect">
+                    <option value="en-US" selected>English</option>
+                    <option value="ar-SA">Arabic (Saudi Arabia)</option>
+                    <option value="hi-IN">Hindi (India)</option>
+                    <option value="ml-IN">Malayalam (India)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <h3>Avatar Configuration</h3>
+                <label for="ttsVoice">TTS Voice:</label>
+                <select id="ttsVoice">
+                    <option value="en-US-JennyMultilingualV2Neural" selected>Jenny (Multilingual V2)</option>
+                </select>
+                
+                <label for="avatarCharacter">Avatar Character:</label>
+                <input type="text" id="avatarCharacter" value="lisa">
+                
+                <label for="avatarStyle">Avatar Style:</label>
+                <input type="text" id="avatarStyle" value="casual-sitting">
+            </div>
+
+            <div class="control-group">
+                <h3>Session Control</h3>
+                <button id="startSession">Start Session</button>
+                <button id="stopSession" disabled>Stop Session</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Left Panel - Chat Interface -->
+    <div id="chat-panel">
+        <h2>Mars Bank Assistant</h2>
+        <div id="chat-history"></div>
+        <div id="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button id="send-btn">Send</button>
+        </div>
+    </div>
+
+    <script>
+        let speechConfig;
+        let avatarSynthesizer;
+        let peerConnection;
+
+        // Initialize the avatar session
+        document.getElementById('startSession').addEventListener('click', async function() {
+            try {
+                const region = document.getElementById('region').value;
+                const subscriptionKey = document.getElementById('subscriptionKey').value;
+                const language = document.getElementById('languageSelect').value;
+                const selectedVoice = document.getElementById('ttsVoice').value;
+
+                // Create speech config
+                speechConfig = SpeechSDK.SpeechConfig.fromSubscription(subscriptionKey, region);
+                speechConfig.speechSynthesisVoiceName = selectedVoice;
+
+                // Configure avatar
+                const videoFormat = new SpeechSDK.AvatarVideoFormat();
+                videoFormat.width = 1920;
+                videoFormat.height = 1080;
+
+                const avatarConfig = new SpeechSDK.AvatarConfig(
+                    document.getElementById('avatarCharacter').value,
+                    document.getElementById('avatarStyle').value,
+                    videoFormat
+                );
+
+                // Create avatar synthesizer
+                avatarSynthesizer = new SpeechSDK.AvatarSynthesizer(speechConfig, avatarConfig);
+
+                // Set up WebRTC
+                console.log("Fetching speech token...");
+                const response = await fetch("http://localhost:8000/api/get-speech-token", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        region: region,
+                        subscription_key: subscriptionKey
+                    })
+                });
+
+                if (!response.ok) throw new Error("Failed to get token");
+                const data = await response.json();
+
+                peerConnection = new RTCPeerConnection({
+                    iceServers: [{
+                        urls: ["turn:relay.communication.microsoft.com:3478"],
+                        username: data.token,
+                        credential: data.token
+                    }]
+                });
+
+                // Add transceivers before setting up tracks
+                peerConnection.addTransceiver('audio', { direction: 'sendrecv' });
+                peerConnection.addTransceiver('video', { direction: 'sendrecv' });
+
+                // Handle tracks
+                peerConnection.ontrack = function(event) {
+                    console.log("Track received:", event.track.kind);
+                    if (event.track.kind === "video") {
+                        const videoElement = document.createElement("video");
+                        videoElement.autoplay = true;
+                        videoElement.playsInline = true;
+                        videoElement.muted = false;
+                        
+                        const stream = new MediaStream();
+                        event.streams[0].getTracks().forEach(track => {
+                            stream.addTrack(track);
+                        });
+                        
+                        videoElement.srcObject = stream;
+                        
+                        videoElement.onplay = () => {
+                            console.log("Video playback started");
+                            videoElement.muted = false;
+                            videoElement.volume = 1.0;
+                        };
+                        
+                        const remoteVideo = document.getElementById("remoteVideo");
+                        remoteVideo.innerHTML = "";
+                        remoteVideo.appendChild(videoElement);
+                    } else if (event.track.kind === "audio") {
+                        const audioStream = new MediaStream([event.track]);
+                        const audioElement = new Audio();
+                        audioElement.autoplay = true;
+                        audioElement.srcObject = audioStream;
+                        audioElement.volume = 1.0;
+                        
+                        audioElement.onplay = () => {
+                            console.log("Audio playback started");
+                        };
+                        
+                        audioElement.play().catch(error => {
+                            console.error("Audio autoplay failed:", error);
+                        });
+                    }
+                };
+
+                // Start the avatar
+                console.log("Starting avatar...");
+                await avatarSynthesizer.startAvatarAsync(peerConnection);
+                console.log("Avatar started successfully");
+
+                // Wait for connection to establish
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Initial greeting with viseme for animation
+                const greetings = {
+                    'en-US': 'Hello, I am your Mars Bank Assistant.',
+                    'ar-SA': 'مرحباً، أنا مساعد بنك المريخ.',
+                    'hi-IN': 'नमस्ते, मैं मार्स बैंक सहायक हूं।',
+                    'ml-IN': 'ഹലോ, ഞാൻ മാർസ് ബാങ്ക് അസിസ്റ്റന്റ് ആണ്.'
+                };
+
+                const greeting = greetings[language] || greetings['en-US'];
+                const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' 
+                    xmlns:mstts='http://www.w3.org/2001/mstts'>
+                    <voice name='en-US-JennyMultilingualV2Neural'>
+                        <mstts:viseme type="FacialExpression"/>
+                        <lang xml:lang='${language}'>
+                            ${greeting}
+                        </lang>
+                    </voice>
+                </speak>`;
+
+                console.log("Speaking initial greeting...");
+                await avatarSynthesizer.speakSsmlAsync(ssml);
+
+                document.getElementById('startSession').disabled = true;
+                document.getElementById('stopSession').disabled = false;
+
+            } catch (error) {
+                console.error("Failed to start session:", error);
+                alert(`Failed to start session: ${error.message}`);
+            }
+        });
+
+        // Handle chat interaction
+        document.getElementById('send-btn').addEventListener('click', async function() {
+            const userInput = document.getElementById('user-input').value.trim();
+            if (!userInput || !avatarSynthesizer) return;
+
+            const language = document.getElementById('languageSelect').value;
+            addMessage(userInput, 'user');
+            document.getElementById('user-input').value = '';
+
+            try {
+                const response = await fetch("http://localhost:8000/api/chat-stream", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query: userInput })
+                });
+
+                if (!response.ok) throw new Error("Failed to get response");
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let botResponse = "";
+
+                while (true) {
+                    const {value, done} = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    const cleanChunk = chunk.replace(/data:\s*/g, "").trim();
+                    if (cleanChunk) {
+                        botResponse += cleanChunk + " ";
+                        addMessage(botResponse, 'bot', true);
+                    }
+                }
+
+                const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' 
+                    xmlns:mstts='http://www.w3.org/2001/mstts'>
+                    <voice name='en-US-JennyMultilingualV2Neural'>
+                        <lang xml:lang='${language}'>
+                            ${botResponse}
+                        </lang>
+                    </voice>
+                </speak>`;
+
+                console.log("Speaking in language:", language);
+                await avatarSynthesizer.speakSsmlAsync(ssml);
+
+            } catch (error) {
+                console.error("Chat error:", error);
+                addMessage("Sorry, I encountered an error. Please try again.", 'bot');
+            }
+        });
+
+        // Handle Enter key in input
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('send-btn').click();
+            }
+        });
+
+        // Stop session
+        document.getElementById('stopSession').addEventListener('click', async function() {
+            if (avatarSynthesizer) {
+                await avatarSynthesizer.stopAvatarAsync();
+                avatarSynthesizer.close();
+                avatarSynthesizer = null;
+            }
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            document.getElementById('remoteVideo').innerHTML = '';
+            document.getElementById('startSession').disabled = false;
+            document.getElementById('stopSession').disabled = true;
+        });
+
+        // Helper function to add messages to chat history
+        function addMessage(text, sender, update = false) {
+            const chatHistory = document.getElementById('chat-history');
+            
+            if (update) {
+                // Update existing bot message if it's a stream update
+                const lastMessage = chatHistory.lastElementChild;
+                if (lastMessage && lastMessage.classList.contains('bot-message')) {
+                    lastMessage.textContent = text;
+                    return;
+                }
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', `${sender}-message`);
+            messageDiv.textContent = text;
+            chatHistory.appendChild(messageDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        // Add a function to check media playback status
+        function checkMediaPlayback() {
+            const videoElement = document.querySelector('#remoteVideo video');
+            const audioElement = document.querySelector('audio');
+            
+            if (videoElement) {
+                console.log("Video state:", {
+                    paused: videoElement.paused,
+                    currentTime: videoElement.currentTime,
+                    readyState: videoElement.readyState,
+                    networkState: videoElement.networkState,
+                    muted: videoElement.muted,
+                    volume: videoElement.volume
+                });
+            }
+            
+            if (audioElement) {
+                console.log("Audio state:", {
+                    paused: audioElement.paused,
+                    currentTime: audioElement.currentTime,
+                    readyState: audioElement.readyState,
+                    networkState: audioElement.networkState,
+                    muted: audioElement.muted,
+                    volume: audioElement.volume
+                });
+            }
+        }
+
+        // Call checkMediaPlayback periodically
+        setInterval(checkMediaPlayback, 5000);
+
+        // Initialize the voice options on page load
+        window.addEventListener('load', function() {
+            document.getElementById('languageSelect').dispatchEvent(new Event('change'));
+        });
+
+        // Add language change handler
+        document.getElementById('languageSelect').addEventListener('change', async function() {
+            const language = this.value;
+            if (avatarSynthesizer) {
+                // Test the new language immediately
+                const testMessage = getGreetingForLanguage(language);
+                const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' 
+                    xmlns:mstts='http://www.w3.org/2001/mstts'>
+                    <voice name='en-US-JennyMultilingualV2Neural'>
+                        <mstts:viseme type="FacialExpression"/>
+                        <lang xml:lang='${language}'>
+                            ${testMessage}
+                        </lang>
+                    </voice>
+                </speak>`;
+                
+                try {
+                    await avatarSynthesizer.speakSsmlAsync(ssml);
+                } catch (error) {
+                    console.error("Language switch test failed:", error);
+                }
+            }
+        });
+
+        // Helper function to get greeting in different languages
+        function getGreetingForLanguage(language) {
+            const greetings = {
+                'en-US': 'Hello, I am your Mars Bank Assistant.',
+                'ar-SA': 'مرحباً، أنا مساعد بنك المريخ.',
+                'hi-IN': 'नमस्ते, मैं मार्स बैंक सहायक हूं।',
+                'ml-IN': 'ഹലോ, ഞാൻ മാർസ് ബാങ്ക് അസിസ്റ്റന്റ് ആണ്.'
+            };
+            return greetings[language] || greetings['en-US'];
+        }
+    </script>
+</body>
+</html>

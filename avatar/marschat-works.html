@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mars Bank Assistant</title>
+    <script src="https://aka.ms/csspeech/jsbrowserpackageraw"></script>
+
+    <style>
+        /* Layout */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Right Panel - Avatar */
+        #avatar-panel {
+            width: 60%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Make video container more prominent */
+        #videoContainer {
+            width: 100%;
+            height: 60vh; /* Increased height */
+            background: #000;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #remoteVideo {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #remoteVideo video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Configuration section */
+        #configuration {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            max-height: calc(40vh - 40px); /* Remaining space minus padding */
+        }
+
+        /* Left Panel - Chat Interface */
+        #chat-panel {
+            width: 40%;
+            padding: 20px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Control group styling */
+        .control-group {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .control-group h3 {
+            margin-top: 0;
+            color: #0078d4;
+            font-size: 1.1em;
+        }
+
+        /* Form controls */
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 8px 16px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #0078d4;
+            color: white;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #006cbd;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Loading indicator */
+        #remoteVideo:empty::after {
+            content: "Loading...";
+            color: white;
+            font-size: 1.2em;
+        }
+
+        /* Message styles */
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .user-message {
+            background: #e3f2fd;
+            margin-left: 20%;
+        }
+
+        .bot-message {
+            background: #f5f5f5;
+            margin-right: 20%;
+        }
+
+        /* Update the title styling */
+        h2 {
+            color: #0078d4;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-align: center;
+        }
+
+        /* Add some styling for the language selector */
+        #languageSelect {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            background-color: white;
+        }
+
+        /* Add styling for the voice selector */
+        #ttsVoice {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            background-color: white;
+        }
+
+        optgroup {
+            font-weight: bold;
+            color: #0078d4;
+        }
+
+        option {
+            font-weight: normal;
+            color: #333;
+            padding: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Right Panel - Avatar -->
+    <div id="avatar-panel">
+        <!-- Move video container to the top -->
+        <div id="videoContainer">
+            <div id="remoteVideo"></div>
+            <canvas id="canvas" width="1920" height="1080" hidden></canvas>
+            <canvas id="tmpCanvas" width="1920" height="1080" hidden></canvas>
+        </div>
+
+        <!-- Configuration section below the video -->
+        <div id="configuration">
+            <div class="control-group">
+                <h3>Azure Speech Configuration</h3>
+                <label for="region">Region:</label>
+                <select id="region">
+                    <option value="eastus2" selected>East US 2</option>
+                    <option value="westus2">West US 2</option>
+                    <option value="westeurope">West Europe</option>
+                </select>
+
+                <label for="subscriptionKey">Subscription Key:</label>
+                <input type="password" id="subscriptionKey" value="AGFc9spJXlWZvhSokbZTRJnx14N1JXufaEbcvkAk6zHKRosipuypJQQJ99BBACHYHv6XJ3w3AAAYACOGBrd4">
+            </div>
+
+            <div class="control-group">
+                <h3>Avatar Configuration</h3>
+                <label for="ttsVoice">TTS Voice:</label>
+                <select id="ttsVoice">
+                    <optgroup label="en-US">
+                        <option value="en-US-AvaMultilingualNeural" selected>Ava - Multilingual</option>
+                        <option value="en-US-JennyMultilingualNeural">Jenny - Multilingual</option>
+                    </optgroup>
+                    <optgroup label="ar-SA">
+                        <option value="ar-SA-HamedNeural" selected>Hamed - Arabic</option>
+                    </optgroup>
+                    <optgroup label="hi-IN">
+                        <option value="hi-IN-MadhurNeural" selected>Madhur - Hindi</option>
+                    </optgroup>
+                    <optgroup label="ml-IN">
+                        <option value="ml-IN-SobhanaNeural" selected>Sobhana - Malayalam</option>
+                    </optgroup>
+                </select>
+                
+                <label for="avatarCharacter">Avatar Character:</label>
+                <input type="text" id="avatarCharacter" value="lisa">
+                
+                <label for="avatarStyle">Avatar Style:</label>
+                <input type="text" id="avatarStyle" value="casual-sitting">
+            </div>
+
+            <div class="control-group">
+                <h3>Language Settings</h3>
+                <label for="languageSelect">Language:</label>
+                <select id="languageSelect">
+                    <option value="en-US" selected>English</option>
+                    <option value="ar-SA">Arabic (Saudi Arabia)</option>
+                    <option value="hi-IN">Hindi (India)</option>
+                    <option value="ml-IN">Malayalam (India)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <button id="startSession">Start Session</button>
+                <button id="stopSession" disabled>Stop Session</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Left Panel - Chat Interface -->
+    <div id="chat-panel">
+        <h2>Mars Bank Assistant</h2>
+        <div id="chat-history"></div>
+        <div id="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button id="send-btn">Send</button>
+        </div>
+    </div>
+
+    <!-- Load the modularized JavaScript -->
+    <script type="module" src="../js/main.js"></script>
+</body>
+</html>

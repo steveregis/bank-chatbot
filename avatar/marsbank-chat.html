@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MarsBank Chatbot</title>
+  <!-- Load Azure Speech SDK for browsers -->
+  <script src="https://aka.ms/csspeech/jsbrowserpackageraw"></script>
+  <style>
+    /* Global Styles */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      color: #0078d4;
+      margin-bottom: 20px;
+    }
+    /* Left Panel: Chat Log and Input */
+    #left-panel {
+      width: 40%;
+      background: #ffffff;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+    #chat-log {
+      flex: 1;
+      border: 1px solid #ccc;
+      padding: 10px;
+      overflow-y: auto;
+      background: #fafafa;
+      margin-bottom: 10px;
+    }
+    #user-input {
+      padding: 10px;
+      font-size: 1rem;
+      width: calc(100% - 20px);
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    #send-btn {
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: #0078d4;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #send-btn:hover {
+      background: #005a9e;
+    }
+    /* Right Panel: Avatar Configuration and Video */
+    #right-panel {
+      width: 60%;
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    #configuration {
+      background: #ffffff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      z-index: 10;
+    }
+    #configuration h3 {
+      margin: 0 0 10px 0;
+      font-size: 1.2rem;
+      color: #333;
+    }
+    #configuration label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+    #configuration input, #configuration select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    /* Video Container */
+    #videoContainer {
+      flex: 1;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 20px;
+      min-height: 400px;
+      width: 100%;
+    }
+    #remoteVideo {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      background-color: #000;
+    }
+    #remoteVideo video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    /* Logging Area */
+    #logging {
+      background: #ffffff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      max-height: 150px;
+      font-size: 0.9rem;
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      position: relative;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <!-- Left Panel: Chat Log and Input -->
+  <div id="left-panel">
+    <h1>MarsBank Chatbot</h1>
+    <div id="chat-log"></div>
+    <input type="text" id="user-input" placeholder="Type your message here...">
+    <button id="send-btn">Send</button>
+  </div>
+  
+  <!-- Right Panel: Avatar & Configuration -->
+  <div id="right-panel">
+    <div id="configuration">
+      <h3>Azure Speech Resource</h3>
+      <label for="region">Region:</label>
+      <select id="region">
+        <option value="eastus2" selected>East US 2</option>
+        <option value="westus2">West US 2</option>
+        <option value="westeurope">West Europe</option>
+        <option value="southeastasia">Southeast Asia</option>
+      </select>
+      <label for="subscriptionKey">Subscription Key:</label>
+      <input id="subscriptionKey" type="password" value="AGFc9spJXlWZvhSokbZTRJnx14N1JXufaEbcvkAk6zHKRosipuypJQQJ99BBACHYHv6XJ3w3AAAYACOGBrd4">
+      <h3>TTS Configuration</h3>
+      <label for="ttsVoice">TTS Voice (English):</label>
+      <input id="ttsVoice" type="text" value="en-US-AvaMultilingualNeural">
+      <label for="languageSelect">TTS Language:</label>
+      <select id="languageSelect">
+        <option value="en-US" selected>English</option>
+        <option value="ar-EG">Arabic</option>
+      </select>
+      <h3>Avatar Configuration</h3>
+      <label for="talkingAvatarCharacter">Avatar Character:</label>
+      <input id="talkingAvatarCharacter" type="text" value="lisa">
+      <label for="talkingAvatarStyle">Avatar Style:</label>
+      <input id="talkingAvatarStyle" type="text" value="casual-sitting">
+      <label for="backgroundColor">Background Color:</label>
+      <input id="backgroundColor" type="text" value="#FFFFFFFF">
+      <input type="checkbox" id="enablePrivateEndpoint" onchange="updatePrivateEndpoint()">Enable Private Endpoint</input>
+      <input type="checkbox" id="transparentBackground" onchange="updataTransparentBackground()">Transparent Background</input>
+      <button id="startSession">Start Session</button>
+      <button id="stopSession" disabled>Stop Session</button>
+      <div style="margin-top: 10px;">
+        <button onclick="testAudio()">Test Audio</button>
+        <label for="volumeControl">Volume:</label>
+        <input type="range" id="volumeControl" min="0" max="200" value="100" 
+               onchange="updateVolume(this.value)">
+      </div>
+      <div style="margin-top: 10px;">
+        <button onclick="checkAudioState()">Check Audio State</button>
+      </div>
+      <div style="margin-top: 10px;">
+        <button onclick="forceAudioPlay()">Force Audio Play</button>
+      </div>
+      <div style="margin-top: 10px;">
+        <button onclick="checkAudioTracks()">Check Audio Tracks</button>
+      </div>
+      <div style="margin-top: 10px;">
+        <button onclick="initializeAudio()">Initialize Audio</button>
+      </div>
+    </div>
+    <div id="videoContainer">
+      <div id="remoteVideo"></div>
+      <canvas id="canvas" width="1920" height="1080" hidden></canvas>
+      <canvas id="tmpCanvas" width="1920" height="1080" hidden></canvas>
+    </div>
+    <div id="logging"></div>
+  </div>
+  
+  <script>
+    // Define all variables and helper functions first
+    var speechConfig;
+    var avatarSynthesizer;
+    var peerConnection = null;  // Initialize as null, we'll create it in setupWebRTC
+
+    // Helper function for logging
+    function log(msg) {
+        var loggingElem = document.getElementById('logging');
+        loggingElem.innerHTML += msg + "<br>";
+        loggingElem.scrollTop = loggingElem.scrollHeight;
+    }
+
+    // Helper function for HTML encoding
+    function htmlEncode(text) {
+        const entityMap = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+            '/': '&#x2F;'
+        };
+        return String(text).replace(/[&<>"'\/]/g, match => entityMap[match]);
+    }
+
+    function updatePrivateEndpoint() {
+        var showPrivateEndpoint = document.getElementById("enablePrivateEndpoint").checked;
+        var privateEndpointDiv = document.getElementById("showPrivateEndpointCheckBox");
+        if (privateEndpointDiv) {
+            privateEndpointDiv.hidden = !showPrivateEndpoint;
+        }
+    }
+
+    function updataTransparentBackground() {
+        var transparentBackground = document.getElementById("transparentBackground").checked;
+        var backgroundColorInput = document.getElementById("backgroundColor");
+        if (backgroundColorInput) {
+            backgroundColorInput.disabled = transparentBackground;
+        }
+    }
+
+    // Update the setupWebRTC function
+    async function setupWebRTC(iceServerUrl, iceServerUsername, iceServerCredential) {
+        try {
+            if (peerConnection) {
+                peerConnection.close();
+            }
+            
+            log("Setting up WebRTC connection...");
+            
+            // Create new RTCPeerConnection
+            peerConnection = new RTCPeerConnection({
+                iceServers: [{
+                    urls: [iceServerUrl],
+                    username: iceServerUsername,
+                    credential: iceServerCredential
+                }]
+            });
+
+            // Add transceivers with explicit audio enabled
+            peerConnection.addTransceiver('video', { direction: 'sendrecv' });
+            peerConnection.addTransceiver('audio', { 
+                direction: 'sendrecv',
+                streams: [new MediaStream()]
+            });
+            
+            // Set up ontrack handler
+            peerConnection.ontrack = function(event) {
+                console.log("Track received:", event.track.kind);
+                log("Received track: " + event.track.kind);
+                
+                if (event.track.kind === "video") {
+                    console.log("Setting up video/audio element");
+                    var videoElem = document.createElement("video");
+                    videoElem.id = "avatarVideo";
+                    videoElem.autoplay = true;
+                    videoElem.playsInline = true;
+                    videoElem.controls = true;
+                    videoElem.style.width = "100%";
+                    videoElem.style.height = "100%";
+                    videoElem.muted = false;
+                    videoElem.volume = 1.0;
+
+                    // Use the entire stream instead of individual tracks
+                    videoElem.srcObject = event.streams[0];
+                    
+                    var remoteVideoDiv = document.getElementById('remoteVideo');
+                    while (remoteVideoDiv.firstChild) {
+                        remoteVideoDiv.removeChild(remoteVideoDiv.firstChild);
+                    }
+                    remoteVideoDiv.appendChild(videoElem);
+
+                    videoElem.play()
+                        .then(() => {
+                            console.log("Video playback started");
+                            log("Video playback started");
+                            videoElem.muted = false;
+                            videoElem.volume = 1.0;
+                        })
+                        .catch(error => {
+                            console.error("Playback failed:", error);
+                            log("Playback failed: " + error);
+                        });
+                }
+            };
+            
+            peerConnection.onconnectionstatechange = function() {
+                console.log("Connection state:", peerConnection.connectionState);
+                log("Connection state: " + peerConnection.connectionState);
+            };
+            
+            return peerConnection;
+        } catch (error) {
+            log("Error in setupWebRTC: " + error.message);
+            throw error;
+        }
+    }
+
+    // Restore the original configuration controls
+    document.getElementById('configuration').innerHTML += `
+        <div style="margin-top: 10px;">
+            <button onclick="testAudio()">Test Audio</button>
+            <label for="volumeControl">Volume:</label>
+            <input type="range" id="volumeControl" min="0" max="200" value="100" 
+                   onchange="updateVolume(this.value)">
+        </div>
+        <div style="margin-top: 10px;">
+            <button onclick="checkAudioState()">Check Audio State</button>
+        </div>
+    `;
+
+    // Function to test audio
+    function testAudio() {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 440;
+        gainNode.gain.value = 0.5;
+        
+        oscillator.start();
+        setTimeout(() => oscillator.stop(), 500);
+        
+        log("Audio test played");
+    }
+
+    // Function to check audio state
+    function checkAudioState() {
+        const videoElem = document.getElementById('avatarVideo');
+        if (videoElem) {
+            const stream = videoElem.srcObject;
+            if (stream) {
+                const audioTracks = stream.getAudioTracks();
+                console.log("Audio tracks:", audioTracks.length);
+                audioTracks.forEach(track => {
+                    console.log("Audio track enabled:", track.enabled);
+                    console.log("Audio track muted:", track.muted);
+                    console.log("Audio track settings:", track.getSettings());
+                });
+                console.log("Video element volume:", videoElem.volume);
+                console.log("Video element muted:", videoElem.muted);
+            }
+        }
+        log("Audio state checked - see console");
+    }
+
+    // Update the startSession click handler
+    document.getElementById('startSession').addEventListener('click', async function() {
+        try {
+            var region = document.getElementById('region').value;
+            var subKey = document.getElementById('subscriptionKey').value;
+            
+            if (!subKey) {
+                throw new Error("Please provide your subscription key.");
+            }
+
+            log("Initializing speech config...");
+            
+            // Create speech config
+            speechConfig = SpeechSDK.SpeechConfig.fromSubscription(subKey, region);
+            speechConfig.speechSynthesisVoiceName = document.getElementById('ttsVoice').value;
+
+            // Configure avatar
+            var videoFormat = new SpeechSDK.AvatarVideoFormat();
+            videoFormat.width = 1920;
+            videoFormat.height = 1080;
+
+            var avatarCharacter = document.getElementById('talkingAvatarCharacter').value;
+            var avatarStyle = document.getElementById('talkingAvatarStyle').value;
+            
+            log("Creating avatar config...");
+            
+            var avatarConfig = new SpeechSDK.AvatarConfig(avatarCharacter, avatarStyle, videoFormat);
+            
+            // Set background color if not transparent
+            var transparentBackground = document.getElementById('transparentBackground')?.checked;
+            if (!transparentBackground) {
+                avatarConfig.backgroundColor = document.getElementById('backgroundColor').value;
+            }
+
+            // Create avatar synthesizer
+            avatarSynthesizer = new SpeechSDK.AvatarSynthesizer(speechConfig, avatarConfig);
+            
+            avatarSynthesizer.avatarEventReceived = function(s, e) {
+                log("Avatar event: " + e.description);
+            };
+            
+            log("Retrieving ICE server details...");
+            
+            // Get ICE server details
+            var tokenUrl = `https://${region}.tts.speech.microsoft.com/cognitiveservices/avatar/relay/token/v1`;
+            const response = await fetch(tokenUrl, {
+                headers: {
+                    'Ocp-Apim-Subscription-Key': subKey
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error("Failed to get ICE server details");
+            }
+            
+            const responseData = await response.json();
+            await setupWebRTC(
+                responseData.Urls[0],
+                responseData.Username,
+                responseData.Password
+            );
+
+            log("Starting avatar...");
+            const result = await avatarSynthesizer.startAvatarAsync();
+            if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
+                log("Avatar started successfully. Result ID: " + result.resultId);
+                document.getElementById('startSession').disabled = true;
+                document.getElementById('stopSession').disabled = false;
+            }
+            
+        } catch (error) {
+            log("Error starting session: " + error.message);
+            alert(error.message);
+        }
+    });
+
+    // Stop the avatar session
+    document.getElementById('stopSession').addEventListener('click', function() {
+        if (avatarSynthesizer) {
+            avatarSynthesizer.close();
+            avatarSynthesizer = undefined;
+        }
+        document.getElementById('startSession').disabled = false;
+        document.getElementById('stopSession').disabled = true;
+        log("Session stopped");
+    });
+
+    // Update the send-btn click handler
+    document.getElementById('send-btn').addEventListener('click', async function() {
+        if (!avatarSynthesizer) {
+            alert("Please click 'Start Session' to initialize the avatar before sending a message.");
+            return;
+        }
+
+        var userInput = document.getElementById('user-input').value;
+        if (!userInput) return;
+
+        document.getElementById('user-input').value = ''; // Clear input
+        
+        var chatLog = document.getElementById('chat-log');
+        chatLog.innerHTML += `<div><strong>User:</strong> ${htmlEncode(userInput)}</div>`;
+        
+        try {
+            // Get the selected language
+            var languageSelect = document.getElementById("languageSelect").value;
+            
+            // First get the chat response
+            const response = await fetch("http://localhost:8000/api/chat-stream", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query: userInput })
+            });
+            
+            if (!response.ok) throw new Error("Chat API request failed");
+            
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let fullResponse = "";
+            
+            chatLog.innerHTML += `<div><strong>Bot:</strong> <span id="bot-response"></span></div>`;
+            const botResponseElem = document.getElementById("bot-response");
+            
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n');
+                
+                for (const line of lines) {
+                    if (line.startsWith('data:')) {
+                        const text = line.slice(5).trim();
+                        if (text) {
+                            fullResponse += text + " ";
+                            botResponseElem.textContent = fullResponse;
+                        }
+                    }
+                }
+            }
+
+            var voiceName = (languageSelect === "ar-EG") ? 
+                "ar-EG-SalmaNeural" : 
+                document.getElementById("ttsVoice").value;
+
+            const volumeValue = window.currentSpeechVolume || 100;
+            const volumeDb = Math.floor((volumeValue - 100) / 2);
+            
+            var ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' 
+                             xmlns:mstts='http://www.w3.org/2001/mstts' 
+                             xml:lang='${languageSelect}'>
+                <voice name='${voiceName}'>
+                    <prosody volume="+${volumeDb}dB">
+                        ${htmlEncode(fullResponse)}
+                    </prosody>
+                </voice>
+            </speak>`;
+
+            log("Sending SSML to avatar synthesizer");
+            
+            const result = await avatarSynthesizer.speakSsmlAsync(ssml);
+            
+            if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
+                log("Avatar spoke successfully");
+            } else {
+                throw new Error("Speech synthesis failed");
+            }
+
+            chatLog.scrollTop = chatLog.scrollHeight;
+            
+        } catch (error) {
+            log("Error in chat process: " + error.message);
+            alert("Error: " + error.message);
+        }
+    });
+
+    // Allow Enter key in input field
+    document.getElementById('user-input').addEventListener('keydown', function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            document.getElementById('send-btn').click();
+        }
+    });
+
+    // Add favicon to prevent 404 error
+    document.head.innerHTML += `
+        <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA/4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEREQAAAAAAEAAAEAAAAAEAAAABAAAAEAAAAAAQAAAQAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAEAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAP//AAD8HwAA++8AAPf3AADv+wAA7/sAAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA" />
+    `;
+
+    // Add this function to help debug audio issues
+    function checkAudioState() {
+        try {
+            const videoElem = document.getElementById('avatarVideo');
+            const audioElem = document.getElementById('avatarAudio');
+            
+            if (videoElem) {
+                console.log("Video element state:", {
+                    muted: videoElem.muted,
+                    volume: videoElem.volume,
+                    paused: videoElem.paused,
+                    currentTime: videoElem.currentTime,
+                    readyState: videoElem.readyState
+                });
+                
+                const stream = videoElem.srcObject;
+                if (stream) {
+                    console.log("Video stream tracks:", 
+                        stream.getTracks().map(t => ({
+                            kind: t.kind,
+                            enabled: t.enabled,
+                            muted: t.muted
+                        }))
+                    );
+                }
+            }
+            
+            if (audioElem) {
+                console.log("Audio element state:", {
+                    muted: audioElem.muted,
+                    volume: audioElem.volume,
+                    paused: audioElem.paused,
+                    currentTime: audioElem.currentTime,
+                    readyState: audioElem.readyState
+                });
+            }
+            
+            log("Audio state checked - see console");
+        } catch (error) {
+            console.error("Check audio state error:", error);
+            log("Check audio state error: " + error);
+        }
+    }
+
+    // Add a function to force audio playback
+    function forceAudioPlay() {
+        try {
+            const videoElem = document.getElementById('avatarVideo');
+            const audioElem = document.getElementById('avatarAudio');
+            
+            if (videoElem) {
+                videoElem.muted = false;
+                videoElem.volume = 1.0;
+                
+                // Check if we have an audio track
+                const stream = videoElem.srcObject;
+                if (stream) {
+                    const audioTracks = stream.getAudioTracks();
+                    console.log("Audio tracks in video element:", audioTracks.length);
+                    audioTracks.forEach(track => {
+                        track.enabled = true;
+                        console.log("Enabled audio track");
+                    });
+                }
+                
+                videoElem.play()
+                    .then(() => console.log("Video forced to play"))
+                    .catch(e => console.error("Video force play failed:", e));
+            }
+            
+            if (audioElem) {
+                audioElem.muted = false;
+                audioElem.volume = 1.0;
+                audioElem.play()
+                    .then(() => console.log("Audio forced to play"))
+                    .catch(e => console.error("Audio force play failed:", e));
+            }
+            
+            log("Forced audio playback attempted");
+        } catch (error) {
+            console.error("Force play error:", error);
+            log("Force play error: " + error);
+        }
+    }
+
+    // Add a function to check audio tracks
+    function checkAudioTracks() {
+        const videoElem = document.getElementById('avatarVideo');
+        if (videoElem && videoElem.srcObject) {
+            const stream = videoElem.srcObject;
+            const audioTracks = stream.getAudioTracks();
+            console.log("Number of audio tracks:", audioTracks.length);
+            audioTracks.forEach((track, index) => {
+                console.log(`Audio track ${index}:`, {
+                    enabled: track.enabled,
+                    muted: track.muted,
+                    readyState: track.readyState,
+                    settings: track.getSettings()
+                });
+            });
+        }
+    }
+
+    // Function to initialize audio
+    function initializeAudio() {
+        try {
+            if (!window.audioContext) {
+                window.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                console.log("Audio context created");
+            }
+            
+            if (window.audioContext.state === 'suspended') {
+                window.audioContext.resume().then(() => {
+                    console.log("Audio context resumed");
+                });
+            }
+
+            const videoElem = document.getElementById('avatarVideo');
+            const audioElem = document.getElementById('avatarAudio');
+
+            if (videoElem) {
+                videoElem.muted = false;
+                videoElem.volume = 1.0;
+                videoElem.play().catch(console.error);
+            }
+
+            if (audioElem) {
+                audioElem.muted = false;
+                audioElem.volume = 1.0;
+                audioElem.play().catch(console.error);
+            }
+
+            log("Audio initialized");
+        } catch (error) {
+            console.error("Error initializing audio:", error);
+            log("Error initializing audio: " + error);
+        }
+    }
+  </script>
+</body>
+</html>

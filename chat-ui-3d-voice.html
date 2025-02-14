@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat with Live Avatar Demo</title>
+  <!-- Load Azure Speech SDK for browsers -->
+  <script src="https://aka.ms/csspeech/jsbrowserpackageraw"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+    /* Left panel: Chat log and input */
+    #left-panel {
+      width: 40%;
+      padding: 20px;
+      border-right: 1px solid #ccc;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+    #chat-log {
+      border: 1px solid #ccc;
+      height: 60vh;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      padding: 10px;
+    }
+    /* Right panel: Avatar and configuration */
+    #right-panel {
+      width: 60%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    #configuration {
+      margin-bottom: 20px;
+      background-color: #f8f8f8;
+      padding: 10px;
+      border: 1px solid #ddd;
+    }
+    #videoContainer {
+      position: relative;
+      width: 960px;
+      margin-bottom: 20px;
+    }
+    #remoteVideo {
+      width: 100%;
+      height: auto;
+      background-color: #000; /* to make video area visible */
+    }
+    canvas {
+      background-color: transparent;
+    }
+    input, select, button, textarea {
+      font-size: 1rem;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Left Panel: Chat Log and Input -->
+  <div id="left-panel">
+    <h2>Chat</h2>
+    <div id="chat-log"></div>
+    <input type="text" id="user-input" placeholder="Type your message here..." style="width:80%;">
+    <button id="send-btn">Send</button>
+  </div>
+
+  <!-- Right Panel: Avatar & Configuration -->
+  <div id="right-panel">
+    <h2>Avatar</h2>
+    <div id="configuration">
+      <h3>Azure Speech Resource</h3>
+      <label for="region">Region:</label>
+      <!-- Preset to East US 2 -->
+      <select id="region">
+        <option value="eastus2" selected>East US 2</option>
+        <option value="westus2">West US 2</option>
+        <option value="westeurope">West Europe</option>
+        <option value="southeastasia">Southeast Asia</option>
+      </select>
+      <br>
+      <label for="subscriptionKey">Subscription Key:</label>
+      <!-- Pre-filled with your key -->
+      <input id="subscriptionKey" type="password" size="32" value="AGFc9spJXlWZvhSokbZTRJnx14N1JXufaEbcvkAk6zHKRosipuypJQQJ99BBACHYHv6XJ3w3AAAYACOGBrd4">
+      <br>
+      <h3>TTS Configuration</h3>
+      <label for="ttsVoice">TTS Voice (for English):</label>
+      <input id="ttsVoice" type="text" value="en-US-AvaMultilingualNeural">
+      <br>
+      <!-- New Language Switch -->
+      <label for="languageSelect">TTS Language:</label>
+      <select id="languageSelect">
+        <option value="en-US" selected>English</option>
+        <option value="ar-EG">Arabic</option>
+      </select>
+      <br>
+      <h3>Avatar Configuration</h3>
+      <label for="talkingAvatarCharacter">Avatar Character:</label>
+      <input id="talkingAvatarCharacter" type="text" value="lisa">
+      <br>
+      <label for="talkingAvatarStyle">Avatar Style:</label>
+      <input id="talkingAvatarStyle" type="text" value="casual-sitting">
+      <br>
+      <label for="backgroundColor">Background Color:</label>
+      <input id="backgroundColor" type="text" value="#FFFFFFFF">
+      <br>
+      <button id="startSession">Start Session</button>
+      <button id="stopSession" disabled>Stop Session</button>
+    </div>
+    <div id="videoContainer">
+      <div id="remoteVideo"></div>
+      <canvas id="canvas" width="1920" height="1080" hidden></canvas>
+      <canvas id="tmpCanvas" width="1920" height="1080" hidden></canvas>
+    </div>
+    <h3>Logs</h3>
+    <div id="logging" style="background-color:#f5f5f5; padding:10px;"></div>
+  </div>
+
+  <script>
+    // Global variables for avatar synthesizer and WebRTC connection
+    var avatarSynthesizer;
+    var peerConnection;
+    var previousAnimationFrameTimestamp = 0;
+
+    // Logger helper function
+    function log(msg) {
+      document.getElementById('logging').innerHTML += msg + "<br>";
+    }
+
+    // HTML encode text for SSML
+    function htmlEncode(text) {
+      const entityMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '/': '&#x2F;'
+      };
+      return String(text).replace(/[&<>"'\/]/g, match => entityMap[match]);
+    }
+
+    // Setup WebRTC for avatar video streaming
+    function setupWebRTC(iceServerUrl, iceServerUsername, iceServerCredential) {
+      peerConnection = new RTCPeerConnection({
+        iceServers: [{
+          urls: [iceServerUrl],
+          username: iceServerUsername,
+          credential: iceServerCredential
+        }]
+      });
+
+      peerConnection.ontrack = function(event) {
+        const remoteVideoDiv = document.getElementById('remoteVideo');
+        remoteVideoDiv.innerHTML = "";
+        const mediaPlayer = document.createElement(event.track.kind);
+        mediaPlayer.id = event.track.kind;
+        mediaPlayer.srcObject = event.streams[0];
+        mediaPlayer.autoplay = true;
+        remoteVideoDiv.appendChild(mediaPlayer);
+      };
+
+      peerConnection.oniceconnectionstatechange = e => {
+        log("WebRTC status: " + peerConnection.iceConnectionState);
+        if (peerConnection.iceConnectionState === 'connected') {
+          document.getElementById('stopSession').disabled = false;
+        }
+        if (peerConnection.iceConnectionState === 'disconnected' || peerConnection.iceConnectionState === 'failed') {
+          document.getElementById('stopSession').disabled = true;
+          document.getElementById('startSession').disabled = false;
+        }
+      };
+
+      peerConnection.addTransceiver('video', { direction: 'sendrecv' });
+      peerConnection.addTransceiver('audio', { direction: 'sendrecv' });
+
+      // Start avatar synthesis session with the peer connection.
+      avatarSynthesizer.startAvatarAsync(peerConnection).then((r) => {
+        if (r.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
+          log("Avatar started. Result ID: " + r.resultId);
+        } else {
+          log("Unable to start avatar. Result ID: " + r.resultId);
+        }
+      }).catch((error) => {
+        log("Avatar failed to start: " + error);
+      });
+    }
+
+    // Start avatar session by configuring Azure Speech SDK
+    document.getElementById('startSession').addEventListener('click', function() {
+      const region = document.getElementById('region').value;
+      const subKey = document.getElementById('subscriptionKey').value;
+      if (subKey === "") {
+        alert("Please provide your subscription key.");
+        return;
+      }
+      let speechConfig = SpeechSDK.SpeechConfig.fromSubscription(subKey, region);
+      // Optionally, set custom voice endpoint ID if provided
+      if(document.getElementById('customVoiceEndpointId')) {
+        speechConfig.endpointId = document.getElementById('customVoiceEndpointId').value;
+      }
+      
+      const videoFormat = new SpeechSDK.AvatarVideoFormat();
+      const avatarCharacter = document.getElementById('talkingAvatarCharacter').value;
+      const avatarStyle = document.getElementById('talkingAvatarStyle').value;
+      const avatarConfig = new SpeechSDK.AvatarConfig(avatarCharacter, avatarStyle, videoFormat);
+      avatarConfig.backgroundColor = document.getElementById('backgroundColor').value;
+      
+      avatarSynthesizer = new SpeechSDK.AvatarSynthesizer(speechConfig, avatarConfig);
+      avatarSynthesizer.avatarEventReceived = function(s, e) {
+        log("Avatar event: " + e.description + " (offset: " + e.offset + ")");
+      };
+
+      // Retrieve token from Azure using the correct token endpoint for avatars.
+      const tokenUrl = "https://eastus2.tts.speech.microsoft.com/cognitiveservices/avatar/relay/token/v1";
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", tokenUrl);
+      xhr.setRequestHeader("Ocp-Apim-Subscription-Key", subKey);
+      xhr.onreadystatechange = function() {
+        if (this.readyState === 4) {
+          const responseData = JSON.parse(this.responseText);
+          const iceServerUrl = responseData.Urls[0];
+          const iceServerUsername = responseData.Username;
+          const iceServerCredential = responseData.Password;
+          setupWebRTC(iceServerUrl, iceServerUsername, iceServerCredential);
+        }
+      };
+      xhr.send();
+      
+      document.getElementById('startSession').disabled = true;
+    });
+
+    // Stop the avatar session
+    document.getElementById('stopSession').addEventListener('click', function() {
+      if (avatarSynthesizer) {
+        avatarSynthesizer.close();
+        avatarSynthesizer = undefined;
+      }
+      document.getElementById('startSession').disabled = false;
+    });
+
+    // Send chat query to FASTAPI streaming endpoint and then have the avatar speak the response
+    document.getElementById('send-btn').addEventListener('click', async function() {
+      // Ensure avatar session is active
+      if (!avatarSynthesizer) {
+        alert("Please click 'Start Session' to initialize the avatar before sending a message.");
+        return;
+      }
+
+      const userInput = document.getElementById('user-input').value;
+      if (!userInput) return;
+      
+      const chatLog = document.getElementById('chat-log');
+      chatLog.innerHTML += `<div><strong>User:</strong> ${userInput}</div>`;
+      
+      try {
+        // Send the query to your FASTAPI chat-stream endpoint
+        const response = await fetch("http://localhost:8000/api/chat-stream", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: userInput })
+        });
+        
+        if (!response.ok) {
+          throw new Error("LLM streaming failed");
+        }
+        
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let fullResponse = "";
+        let done = false;
+        
+        // Create a div for the bot's response
+        chatLog.innerHTML += `<div id="bot-response"><strong>Bot:</strong> </div>`;
+        const botResponseElem = document.getElementById("bot-response");
+        
+        while (!done) {
+          const { value, done: doneReading } = await reader.read();
+          done = doneReading;
+          const chunk = decoder.decode(value);
+          const cleanChunk = chunk.replace(/data:\s*/g, "").trim();
+          if (cleanChunk) {
+            fullResponse += cleanChunk + " ";
+            botResponseElem.innerHTML += cleanChunk + " ";
+          }
+        }
+        
+        // Get the language from the dropdown and set the appropriate voice name.
+        const languageSelect = document.getElementById("languageSelect").value;
+        let voiceName = "";
+        if (languageSelect === "ar-EG") {
+          voiceName = "ar-EG-SalmaNeural";
+        } else {
+          // Use the value from the ttsVoice input for English.
+          voiceName = document.getElementById("ttsVoice").value;
+        }
+        
+        // Generate SSML using the selected language and voice.
+        const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='http://www.w3.org/2001/mstts' xml:lang='${languageSelect}'>
+          <voice name='${voiceName}'>
+            ${htmlEncode(fullResponse)}
+          </voice>
+        </speak>`;
+        
+        console.log("Sending SSML:", ssml);
+        
+        // Use the avatar synthesizer to speak the SSML.
+        avatarSynthesizer.speakSsmlAsync(ssml).then((result) => {
+          if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
+            log("Avatar spoke the response. Result ID: " + result.resultId);
+          } else {
+            log("Failed to synthesize speech. Result ID: " + result.resultId);
+            if (result.reason === SpeechSDK.ResultReason.Canceled) {
+              let cancellationDetails = SpeechSDK.CancellationDetails.fromResult(result);
+              log("Cancellation: " + cancellationDetails.errorDetails);
+            }
+          }
+        }).catch((error) => {
+          log("Error during avatar speak: " + error);
+        });
+        
+      } catch (error) {
+        log("Error in chat streaming: " + error.message);
+        alert(error.message);
+      }
+    });
+  </script>
+</body>
+</html>

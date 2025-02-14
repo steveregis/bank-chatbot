@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bank Chatbot Demo with Streaming & 3D Avatar</title>
+  <style>
+    body { display: flex; font-family: Arial, sans-serif; }
+    #chat { width: 40%; padding: 20px; }
+    #avatar { width: 60%; padding: 20px; }
+    #chat-log { border: 1px solid #ccc; height: 300px; overflow-y: auto; margin-bottom: 10px; padding: 10px; }
+    input, select, button { font-size: 1rem; }
+  </style>
+  <!-- Include Three.js for 3D rendering (if needed for more advanced avatars) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+  <div id="chat">
+    <h2>Chat Window</h2>
+    <div id="chat-log"></div>
+    <input type="text" id="user-input" placeholder="Type your message here..." style="width: 80%;">
+    <select id="language-select">
+      <option value="en-US">English</option>
+      <option value="ar-EG">Arabic</option>
+    </select>
+    <button id="send-btn">Send</button>
+  </div>
+  <div id="avatar">
+    <h2>3D Avatar</h2>
+    <canvas id="avatar-canvas" width="640" height="480"></canvas>
+  </div>
+
+  <script>
+    // Function to play the synthesized audio and simulate lip-sync
+    function playAudioWithAvatar(audioBlob) {
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audio.play();
+      simulateLipSync(audio);
+    }
+
+    // Dummy function to simulate lip sync (for demo purposes)
+    function simulateLipSync(audio) {
+      const canvas = document.getElementById('avatar-canvas');
+      const context = canvas.getContext('2d');
+      let animationInterval = setInterval(() => {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        // Simple simulation: mouth openness oscillates with audio playback time
+        const mouthOpenness = Math.abs(Math.sin(audio.currentTime * 10)) * 30;
+        // Draw face
+        context.beginPath();
+        context.arc(320, 240, 100, 0, Math.PI * 2);
+        context.fillStyle = "#FFCC99";
+        context.fill();
+        // Draw eyes
+        context.beginPath();
+        context.arc(280, 220, 10, 0, Math.PI * 2);
+        context.arc(360, 220, 10, 0, Math.PI * 2);
+        context.fillStyle = "#000";
+        context.fill();
+        // Draw mouth
+        context.beginPath();
+        context.ellipse(320, 280, 50, mouthOpenness, 0, 0, Math.PI, false);
+        context.stroke();
+        if (audio.ended) clearInterval(animationInterval);
+      }, 50);
+    }
+
+    // Function to send query to streaming chat endpoint
+    async function sendQuery() {
+      const userInput = document.getElementById('user-input').value;
+      const language = document.getElementById('language-select').value;
+      if (!userInput) return;
+
+      const chatLog = document.getElementById('chat-log');
+      // Append user query to chat log
+      chatLog.innerHTML += `<div><strong>User:</strong> ${userInput}</div>`;
+
+      // Send query to the streaming chat endpoint
+      try {
+        const response = await fetch('http://localhost:8000/api/chat-stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: userInput })
+        });
+        if (!response.ok) {
+          throw new Error("LLM streaming failed");
+        }
+
+        // Read the streamed response from the server
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let fullResponse = "";
+        let done = false;
+
+        // Clear any previous bot response in the chat log
+        chatLog.innerHTML += `<div id="bot-response"><strong>Bot:</strong> </div>`;
+        const botResponseElem = document.getElementById('bot-response');
+
+        while (!done) {
+          const { value, done: doneReading } = await reader.read();
+          done = doneReading;
+          const chunkValue = decoder.decode(value);
+          // The server sends SSE-style chunks: "data: <chunk>\n\n"
+          // Remove "data:" prefix and newlines
+          const cleanChunk = chunkValue.replace(/data:\s*/g, "").trim();
+          if (cleanChunk) {
+            fullResponse += cleanChunk + " ";
+            botResponseElem.innerHTML += cleanChunk + " ";
+          }
+        }
+
+        // After streaming is complete, send the full LLM response to TTS synthesis
+        const ttsResponse = await fetch('http://localhost:8000/synthesize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: fullResponse, language: language })
+        });
+        if (!ttsResponse.ok) {
+          throw new Error("TTS synthesis failed");
+        }
+        const audioBlob = await ttsResponse.blob();
+        playAudioWithAvatar(audioBlob);
+      } catch (error) {
+        console.error(error);
+        alert(error.message);
+      }
+    }
+
+    // Attach event listener to the Send button
+    document.getElementById('send-btn').addEventListener('click', sendQuery);
+  </script>
+</body>
+</html>
