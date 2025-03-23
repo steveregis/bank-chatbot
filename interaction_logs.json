@@ -1054,3 +1054,33 @@
   "query": "hello",
   "response": "That's correct."
 }
+{
+  "timestamp": "2025-02-14T22:25:06.053548",
+  "query": "what is dib ?",
+  "response": "Based on the provided context, DIB stands for Dubai Islamic Bank."
+}
+{
+  "timestamp": "2025-02-14T22:25:46.465220",
+  "query": "what is dib ?",
+  "response": "According to the provided context, DIB stands for Dubai Islamic Bank."
+}
+{
+  "timestamp": "2025-02-14T22:26:05.731627",
+  "query": "who is ceo ?",
+  "response": "According to the provided context, the CEO of Dubai Islamic Bank is Dr. Adnan Chilwan. He was appointed as the Group CEO in 2013."
+}
+{
+  "timestamp": "2025-02-14T22:26:28.073639",
+  "query": "who is ceo ?",
+  "response": "According to the provided context, the CEO of Dubai Islamic Bank is Dr. Adnan Chilwan. He was appointed as the Group CEO & Abdulla Al Hamli was appointed as Managing Director of the bank."
+}
+{
+  "timestamp": "2025-02-14T22:27:09.897585",
+  "query": "what are tthe products",
+  "response": "According to the provided context, Dubai Islamic Bank offers various products, including:\n\n1. Personal Accounts\n2. Cards (Credit Cards, Debit Cards)\n3. Deposits\n4. Investment Products\n5. Auto Finance\n6. Home Finance\n7. Personal Finance\n8. Branch Banking\n9. Transfer Funds\n10. Other Services\n\nAdditionally, the bank offers specialized services such as:\n\n1. Wajaha Private Banking\n2. Aayan Exclusive Banking\n3. Mumayyaz Privilege Banking\n\nThe bank also provides various credit cards, including Emirates Skywards Credit Cards, with benefits like cashback, travel, and lifestyle rewards."
+}
+{
+  "timestamp": "2025-02-14T22:27:45.452897",
+  "query": "what is products",
+  "response": "According to the provided context, Dubai Islamic Bank offers the following products:\n\n1. Personal Accounts\n2. Cards (including Credit Cards, Debit Cards, and Emirates Skywards Credit Cards)\n3. Deposits\n4. Investment Products\n5. Auto Finance\n6. Home Finance\n7. Personal Finance\n8. Branch Banking\n9. Transfer Funds\n10. Other Services (including Wajaha Private Banking, Aayan Exclusive Banking, and Mumayyaz Privilege Banking)\n\nAdditionally, the bank offers various benefits and features with its products, such as cashback, travel insurance, airport lounge access, purchase protection, and more."
+}

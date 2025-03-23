@@ -1,21 +1,61 @@
 export function initChat() {
+  let lastLanguage = document.getElementById('languageSelect').value;
+
+  // Add language change handler
+  document.getElementById('languageSelect').addEventListener('change', async (event) => {
+    const newLanguage = event.target.value;
+    console.log(`Language changed from ${lastLanguage} to ${newLanguage}`);
+    
+    // Update voice selection based on language
+    updateVoiceForLanguage(newLanguage);
+    lastLanguage = newLanguage;
+  });
+
+  // Function to update voice based on language
+  function updateVoiceForLanguage(language) {
+    const voiceSelect = document.getElementById('ttsVoice');
+    const options = voiceSelect.getElementsByTagName('option');
+    
+    // Find the first voice option for the selected language
+    for (let option of options) {
+      if (option.parentElement.label === language) {
+        voiceSelect.value = option.value;
+        console.log(`Updated voice to ${option.value} for language ${language}`);
+        return;
+      }
+    }
+  }
+
   document.getElementById('send-btn').addEventListener('click', async () => {
     const userInput = document.getElementById('user-input').value.trim();
     if (!userInput) return;
 
-    addMessage(userInput, 'user');
-    document.getElementById('user-input').value = '';
-
     try {
       const language = document.getElementById('languageSelect').value;
       const selectedVoice = document.getElementById('ttsVoice').value;
+      
+      console.log("Processing message with:", {
+        language,
+        selectedVoice,
+        userInput
+      });
+
+      addMessage(userInput, 'user');
+      document.getElementById('user-input').value = '';
+
       const response = await fetch("http://localhost:8000/api/chat-stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: userInput, language: language })
+        body: JSON.stringify({ 
+          query: userInput, 
+          language: language,
+          require_translation: language !== 'en-US'
+        })
       });
 
-      if (!response.ok) throw new Error("Failed to get response");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -32,28 +72,44 @@ export function initChat() {
         }
       }
 
-      // Build SSML for text-to-speech synthesis.
+      console.log("Preparing to speak response:", {
+        botResponse,
+        language,
+        selectedVoice
+      });
+
+      if (!window.avatarSynthesizer) {
+        throw new Error("Avatar synthesizer not initialized. Please start the session first.");
+      }
+
       const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" 
                         xmlns:mstts="http://www.w3.org/2001/mstts" xml:lang="${language}">
                       <voice name="${selectedVoice}">
-                        <lang xml:lang="${language}">
-                          <mstts:express-as style="chat">
-                            ${botResponse}
-                          </mstts:express-as>
-                        </lang>
+                        <prosody rate="0.9" volume="+20%">
+                          ${botResponse}
+                        </prosody>
                       </voice>
                     </speak>`;
-      console.log("Speaking with SSML:", ssml);
 
-      // Use the globally exposed avatarSynthesizer to speak.
-      if (window.avatarSynthesizer) {
+      console.log("Using SSML:", ssml);
+
+      try {
         await window.avatarSynthesizer.speakSsmlAsync(ssml);
-      } else {
-        console.warn("Avatar synthesizer not available to speak.");
+        console.log("Speech synthesis completed successfully");
+      } catch (speechError) {
+        console.error("Speech synthesis error:", speechError);
+        if (window.reinitializeAvatarSession) {
+          console.log("Attempting to reinitialize session...");
+          await window.reinitializeAvatarSession();
+          await window.avatarSynthesizer.speakSsmlAsync(ssml);
+        } else {
+          throw speechError;
+        }
       }
+
     } catch (error) {
       console.error("Chat error:", error);
-      addMessage("Sorry, I encountered an error. Please try again.", 'bot');
+      addMessage(`Error: ${error.message}. Please try restarting the session.`, 'bot');
     }
   });
 

@@ -8,7 +8,7 @@ import requests
 
 # Import the Azure TTS function
 
-from fastapi import FastAPI,HTTPException
+from fastapi import FastAPI,HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -27,9 +27,10 @@ from fastapi.responses import FileResponse, StreamingResponse
 
 from azure_tts import synthesize_speech
 
-
 # If using ChatNVIDIA, import it here. Otherwise, you can use any LLM you want.
 from langchain_nvidia_ai_endpoints import ChatNVIDIA
+
+from googletrans import Translator
 
 # ========== SSL Fix if needed (depending on environment) ==========
 if not os.environ.get("PYTHONHTTPSVERIFY", "").strip():
@@ -122,9 +123,6 @@ def get_chat_ui():
 def get_chat_ui_3d():
     return FileResponse("chat-ui-3d.html")
 
-
-
-
 # ========== Non-streaming Chat endpoint ==========
 @app.post("/api/chat")
 async def chat_endpoint(request: QueryRequest):
@@ -139,25 +137,48 @@ async def chat_endpoint(request: QueryRequest):
 
 # ========== Streaming Chat endpoint ==========
 @app.post("/api/chat-stream")
-async def chat_stream_endpoint(request: QueryRequest):
-    query = request.query.strip()
+async def chat_stream_endpoint(request: Request):
+    data = await request.json()
+    query = data.get("query", "").strip()
+    target_language = data.get("language", "en-US")
+    require_translation = data.get("require_translation", False)
+
+    print(f"Received query: {query}")
+    print(f"Target language: {target_language}")
+    print(f"Translation required: {require_translation}")
 
     async def event_generator():
         try:
+            # Get English response first
             full_response = qa_chain.run(query)
+            print(f"Original response: {full_response}")
+
+            # Translate if needed
+            if require_translation:
+                try:
+                    translator = Translator()
+                    translated = translator.translate(
+                        full_response, 
+                        dest=target_language.split('-')[0]  # Convert 'ar-SA' to 'ar'
+                    )
+                    full_response = translated.text
+                    print(f"Translated response: {full_response}")
+                except Exception as e:
+                    print(f"Translation error: {e}")
+                    # Continue with English response if translation fails
+                    pass
+
+            # Stream the response
+            words = full_response.split()
+            chunk_size = 3
+            for i in range(0, len(words), chunk_size):
+                chunk = " ".join(words[i:i+chunk_size])
+                yield f"data: {chunk}\n\n"
+                await asyncio.sleep(0.1)
         except Exception as e:
-            full_response = f"Error: {e}"
-            print(f"Error in /api/chat-stream: {e}")
-        log_interaction(query, full_response)
-        # Simulate streaming by splitting the response into words (or chunks)
-        words = full_response.split()
-        # Optionally, you can customize chunk size here
-        chunk_size = 3  # number of words per chunk
-        for i in range(0, len(words), chunk_size):
-            chunk = " ".join(words[i:i+chunk_size])
-            # Format as SSE data message
-            yield f"data: {chunk}\n\n"
-            await asyncio.sleep(0.1)  # simulate delay for streaming
+            print(f"Error in chat stream: {e}")
+            yield f"data: Error: {str(e)}\n\n"
+
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 @app.post("/synthesize", response_description="Synthesized speech audio")
@@ -206,6 +227,29 @@ async def get_speech_token(request: SpeechTokenRequest):
     except Exception as e:
         print(f"Unexpected error: {e}")  # Debug logging
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+
+@app.post("/chat")
+async def chat(request: Request):
+    data = await request.json()
+    user_message = data["message"]
+    target_language = data["language"]
+    
+    # Get your English response from your existing AI model
+    english_response = qa_chain.run(user_message)  # Your existing function
+    
+    # Translate if not English
+    if target_language != "en":
+        try:
+            translator = Translator()
+            translated = translator.translate(english_response, dest=target_language)
+            response = translated.text
+        except Exception as e:
+            print(f"Translation error: {e}")
+            response = english_response  # Fallback to English if translation fails
+    else:
+        response = english_response
+        
+    return {"response": response}
 
 # ========== Run with uvicorn (dev server) ==========
 if __name__ == "__main__":
